@@ -1,14 +1,113 @@
-E-Commerce Microservices System
-This project is a modular e-commerce backend built with a modern microservices architecture. The solution separates core business domains—products, inventory, and orders—into independent services, each with its own database. The services communicate asynchronously via Kafka, supporting scalability, flexibility, and resilience.
 
-Key features:
+In a modern microservices architecture, separating databases per bounded context (e.g., Orders, Products, Inventory)
+is considered best practice for scalability and resilience. Kafka (or any event streaming platform) is often used for 
+reliable communication and data synchronization between these services.
 
-Microservice Design: Each business domain (Products, Inventory, Orders) is developed and deployed independently.
+High-Level Architecture
+Microservices:
 
-Event-Driven Integration: Kafka is used for reliable messaging and eventual consistency across services.
+Product Service (Product catalog, pricing, product details, images)
 
-Database Per Service: Every microservice uses its own database and employs globally unique identifiers (GUIDs) for distributed data integrity.
+Inventory Service (Stock management, warehouse locations, reservations)
 
-Inventory Management: Supports real-time stock tracking, inventory history, and multi-warehouse management.
+Order Service (Order placement, order history, status)
 
-Designed for Dapper: Lightweight DTOs and repositories are optimized for fast data access with Dapper in .NET.
+Payment Service (Payment transactions, refunds)
+
+User Service (Authentication, profiles)
+
+Each service has its own database
+(e.g., SQL Server, PostgreSQL, MongoDB, etc.)
+
+Communication:
+
+REST/gRPC: For direct service-to-service calls (e.g., query product details)
+
+Kafka: For asynchronous event-driven flows (e.g., order placed, inventory update, payment processed)
+
+Example: Workflow for Placing an Order
+Order Service receives a new order request (from API/UI).
+
+Order Service emits an OrderCreated event to Kafka.
+
+Inventory Service consumes the OrderCreated event, checks stock, reserves items, updates its own database, and emits InventoryReserved (or InventoryFailed) event.
+
+Order Service consumes InventoryReserved event, updates order status, and emits OrderReadyForPayment event.
+
+Payment Service consumes the event, processes payment, emits PaymentCompleted event.
+
+Order Service receives PaymentCompleted, marks order as completed, triggers shipping, etc.
+
+Sample Service/DB Breakdown
+Product Service
+Database: Product catalog only
+
+Tables: Products, Categories, ProductImages, etc.
+
+Inventory Service
+Database: Only inventory-related data
+
+Tables: Inventory, Warehouses, InventoryTransactions
+
+Order Service
+Database: Only order-related data
+
+Tables: Orders, OrderItems, etc.
+
+Payments Service
+Database: Only payment data
+
+Tables: Payments, Refunds
+
+Kafka Topics Example
+order.created
+
+inventory.reserved
+
+inventory.failed
+
+payment.completed
+
+order.completed
+
+(etc.)
+
+Benefits
+Autonomy: Each service can scale independently.
+
+Resilience: Failure in one service doesn’t bring down others.
+
+Flexibility: Each team/service can pick the best database for its needs.
+
+Data Consistency: Event sourcing & CQRS can help with consistency.
+
+Challenges & Best Practices
+Eventual Consistency: Data across services is eventually, not instantly, consistent.
+
+Idempotency: Event handlers must be idempotent (safe to process events more than once).
+
+Unique IDs: Use UUIDs/Guids to prevent collision across services.
+
+Transaction Boundaries: No distributed transactions across databases; use the Saga pattern for process coordination.
+
+Data duplication: Sometimes it’s okay to denormalize/copy product info across services (as long as you update via events).
+
+Diagram (Text-based)
+less
+Copy
+Edit
+[Product Service]        [Inventory Service]         [Order Service]         [Payment Service]
+     |                        |                           |                         |
+ [Products DB]           [Inventory DB]               [Orders DB]               [Payments DB]
+     |                        |                           |                         |
+     +----> (Kafka topic: order.created) ---------------> |                         |
+     |                        +----> (Kafka topic: inventory.reserved) ----------> |
+     |                        |                           +---> (Kafka topic: payment.completed)
+     |                        |                           |                         |
+Summary
+Yes, you can (and should) separate databases for Orders, Products, Inventory, etc., in a microservices/Kafka system.
+
+Kafka provides reliable, decoupled, scalable event-driven communication.
+
+Each service is responsible for its own data and publishes/subscribes to relevant events.
+
