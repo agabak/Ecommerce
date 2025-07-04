@@ -4,14 +4,13 @@ using System.Data;
 
 namespace Ecom_ProductApi.Repositories;
 
-public class ProductRepository(IDbConnection _db): IProductRepository
+public class ProductRepository(IDbConnection _db) : IProductRepository
 {
 
     public async Task<Guid> InsertProductWithImagesAsync(ProductDto product,
         List<ProductImageDto> images, CancellationToken token = default)
     {
         EnsureOpen(token);
-
         using var tran = _db.BeginTransaction();
         try
         {
@@ -59,12 +58,101 @@ public class ProductRepository(IDbConnection _db): IProductRepository
         }
     }
 
+    public async Task<List<ProductWithImageDto>> GetDetailedProductsAsync(CancellationToken token = default)
+    {
+        const string sql = @"
+                SELECT
+                    p.ProductId,
+                    p.ProductName,
+                    p.Price,
+                    p.Description,
+                    p.SKU,
+                    c.CategoryName AS Category,
+                    c.Description AS CategoryDescription,
+                    pi.ImageUrl,
+                    pi.SortOrder
+                FROM
+                    dbo.Products AS p
+                    INNER JOIN dbo.Categories AS c ON c.CategoryId = p.CategoryId
+                    LEFT JOIN dbo.ProductImages AS pi ON pi.ProductId = p.ProductId
+                ORDER BY
+                    p.ProductName,
+                    pi.SortOrder;";
+
+        var productDict = new Dictionary<Guid, ProductWithImageDto>();
+
+        EnsureOpen(token);
+
+        _ = await _db.QueryAsync<ProductWithImageDto, ProductImageDto, ProductWithImageDto>(
+            new CommandDefinition(sql, cancellationToken: token),
+            map: (product, image) =>
+            {
+                if (!productDict.TryGetValue(product.ProductId, out var existingProduct))
+                {
+                    existingProduct = product;
+                    productDict[product.ProductId] = existingProduct;
+                }
+
+                if (image != null && !string.IsNullOrEmpty(image.ImageUrl))
+                {
+                    existingProduct.Images.Add(image);
+                }
+
+                return existingProduct;
+            },
+            splitOn: "ImageUrl"
+        );
+
+        return productDict.Values.ToList();
+    }
+
+    public async Task<ProductWithImageDto?> GetProductByIdAsync(Guid productId, CancellationToken token = default)
+    {
+        const string sql = @"
+                SELECT
+                    p.ProductId,
+                    p.ProductName,
+                    p.Price,
+                    p.Description,
+                    p.SKU,
+                    c.CategoryName AS Category,
+                    c.Description AS CategoryDescription,
+                    pi.ImageUrl,
+                    pi.SortOrder
+                FROM
+                    dbo.Products AS p
+                    INNER JOIN dbo.Categories AS c ON c.CategoryId = p.CategoryId
+                    LEFT JOIN dbo.ProductImages AS pi ON pi.ProductId = p.ProductId
+                WHERE
+                    p.ProductId = @ProductId;";
+
+        EnsureOpen(token);
+
+        var productDict = new Dictionary<Guid, ProductWithImageDto>();
+        var result = await _db.QueryAsync<ProductWithImageDto, ProductImageDto, ProductWithImageDto>(
+            new CommandDefinition(sql, new { ProductId = productId }, cancellationToken: token),
+            map: (product, image) =>
+            {
+                if (!productDict.TryGetValue(product.ProductId, out var existingProduct))
+                {
+                    existingProduct = product;
+                    productDict[product.ProductId] = existingProduct;
+                }
+                if (image != null && !string.IsNullOrEmpty(image.ImageUrl))
+                {
+                    existingProduct.Images.Add(image);
+                }
+                return existingProduct;
+            },
+            splitOn: "ImageUrl"
+        );
+
+        return productDict.Values.FirstOrDefault();
+    }
+
     private void EnsureOpen(CancellationToken ct)
     {
         if (_db.State != ConnectionState.Open)
             _db.Open();
     }
-
-
-
 }
