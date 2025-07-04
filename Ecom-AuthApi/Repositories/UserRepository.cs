@@ -156,12 +156,6 @@ namespace Ecom_AuthApi.Repositories
             );
         }
 
-        private void EnsureOpen(CancellationToken ct)
-        {
-            if (db.State != ConnectionState.Open)
-                db.Open();
-        }
-
         public async Task<User> GetUserById(Guid userId, CancellationToken token = default)
         {
             const string sql = @"
@@ -182,6 +176,13 @@ namespace Ecom_AuthApi.Repositories
 
             return user;
         }
+
+        private void EnsureOpen(CancellationToken ct)
+        {
+            if (db.State != ConnectionState.Open)
+                db.Open();
+        }
+
 
     }
 }
