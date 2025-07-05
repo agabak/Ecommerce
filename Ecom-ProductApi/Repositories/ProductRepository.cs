@@ -150,6 +150,30 @@ public class ProductRepository(IDbConnection _db) : IProductRepository
         return productDict.Values.FirstOrDefault();
     }
 
+    public Task UpsertInventoryAsync(Guid productId, CancellationToken token = default)
+    {
+       const string sql = @"
+            UPDATE Products
+            SET IsInventory = 1
+            WHERE ProductId = @ProductId;";
+        EnsureOpen(token);
+        return _db.ExecuteAsync(new CommandDefinition(sql, new { ProductId = productId }, cancellationToken: token));
+    }
+
+    public async Task<List<Guid>> GetAllProductIdsAsync(CancellationToken cancellation)
+    {
+        // This method retrieves all product IDs from the Products table where IsInventory 0.
+        const string sql = @"
+            SELECT ProductId
+            FROM Products
+            WHERE IsInventory = 0;";
+
+        EnsureOpen(cancellation);
+        return (await _db.QueryAsync<Guid>(
+            new CommandDefinition(sql, cancellationToken: cancellation)
+        )).ToList();
+    }
+
     private void EnsureOpen(CancellationToken ct)
     {
         if (_db.State != ConnectionState.Open)

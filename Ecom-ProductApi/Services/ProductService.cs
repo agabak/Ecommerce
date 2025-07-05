@@ -4,7 +4,8 @@ using Ecommerce.Common.Services.Files;
 
 namespace Ecom_ProductApi.Services;
 
-public class ProductService(IProductRepository repository, IBlobService blobService) : IProductService
+public class ProductService(IProductRepository repository,
+    IBlobService blobService, IKafkaProducerService kafkaProducer) : IProductService
 {
     public async Task<Guid> InsertProductWithImagesAsync(ProductDto product, CancellationToken token = default)
     {
@@ -39,7 +40,17 @@ public class ProductService(IProductRepository repository, IBlobService blobServ
             }
         }
 
-        return await repository.InsertProductWithImagesAsync(product, images, token);
+        var productId = await repository.InsertProductWithImagesAsync(product, images, token);
+
+        // Send product creation event to Kafka
+        if (productId != Guid.Empty)
+        {
+            await kafkaProducer.ProduceAsync("Create-Inventory",productId.ToString(), token);
+
+            await repository.UpsertInventoryAsync(productId, token);
+        }
+
+        return productId;
     }
 
     public async Task<List<ProductWithImageDto>> GetDetailedProductsAsync(CancellationToken cancellation = default)
