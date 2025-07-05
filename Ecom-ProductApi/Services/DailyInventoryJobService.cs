@@ -1,8 +1,8 @@
-﻿using Confluent.Kafka;
-using Ecom_ProductApi.Repositories;
+﻿using Ecom_ProductApi.Repositories;
 
 namespace Ecom_ProductApi.Services;
 
+// this will run a daily job to update inventory for all products
 public class DailyInventoryJobService : BackgroundService
 {
     private readonly ILogger<DailyInventoryJobService> _logger;
@@ -50,11 +50,12 @@ public class DailyInventoryJobService : BackgroundService
 
         using var scope = _serviceProvider.CreateScope();
         var producerService = scope.ServiceProvider.GetRequiredService<IKafkaProducerService>();
-        var respository = scope.ServiceProvider.GetRequiredService<IProductRepository>();
+        var repository = scope.ServiceProvider.GetRequiredService<IProductRepository>();
+        
         foreach ( var productId in productIds)
         {
             await producerService.ProduceAsync("Create-Inventory", productId.ToString(), token);
-            await respository.UpsertInventoryAsync(productId, token);
+            await repository.UpsertInventoryAsync(productId, token);
         }
     }
 }
