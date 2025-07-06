@@ -1,0 +1,56 @@
+﻿@page "/"
+@using Ecom_Client.Models.DTOs
+@using Ecom_Client.Services.https
+@inject IProductService productService;
+
+<h3 class="text-xl font-semibold mb-4">Welcome To Our Store</h3>
+
+@if (products == null)
+{
+    <p>Loading products...</p>
+}
+else if (!products.Any())
+{
+    <p>No products available.</p>
+}
+else
+{
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @foreach (var product in products)
+        {
+            <div class="border p-4 rounded shadow">
+                <img src="@product.Images?.OrderBy(i => i.SortOrder).FirstOrDefault()?.ImageUrl"
+                     alt="@product.ProductName"
+                     class="w-full h-24 object-cover rounded" />
+
+                <h4 class="text-lg font-bold mt-2">@product.ProductName</h4>
+                <p class="text-gray-600">@product.Description</p>
+                <p class="text-blue-700 font-semibold mt-1">$@product.Price</p>
+
+                <button class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Buy
+                </button>
+            </div>
+        }
+    </div>
+}
+
+@code {
+
+    private  List<ProductDto> products = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            products = await productService.GetProductsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching products: {ex.Message}");
+            products = new List<ProductDto>();
+        }
+    }
+}
+
+

@@ -65,3 +65,6 @@ public class InventoryConsumerService : BackgroundService
         _logger.LogInformation("Processing inventory message: {Message}", message);
     }
 }
+
+
+

@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecom-InventoryWorkerService
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecom-NotificationWorkerService", "Ecom-NotificationWorkerService\Ecom-NotificationWorkerService.csproj", "{F62D7DE4-0909-40AB-9CDF-214C3C9C5144}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecom-Client", "Ecom-Client\Ecom-Client.csproj", "{EE2FB4DD-1E94-4857-A159-3671E3602994}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{F62D7DE4-0909-40AB-9CDF-214C3C9C5144}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F62D7DE4-0909-40AB-9CDF-214C3C9C5144}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F62D7DE4-0909-40AB-9CDF-214C3C9C5144}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE2FB4DD-1E94-4857-A159-3671E3602994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE2FB4DD-1E94-4857-A159-3671E3602994}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE2FB4DD-1E94-4857-A159-3671E3602994}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE2FB4DD-1E94-4857-A159-3671E3602994}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
