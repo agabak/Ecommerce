@@ -3,8 +3,11 @@ using Ecom_ProductApi;
 using Ecom_ProductApi.Repositories;
 using Ecom_ProductApi.Services;
 using Ecommerce.Common.Services.Files;
+using Ecommerce.Common.Services.Kafka;
+using Ecommerce.Common.Settings.Kafka;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using System.Data;
-using System.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,18 +20,36 @@ builder.Services.AddSingleton<IBlobService>
                 (new BlobService(builder.Configuration.GetConnectionString("blobConnectionString"), "files"));
 
 
-// Bind Kafka settings from configuration
-var kafkaSettings = builder.Configuration.GetSection("Kafka").Get<KafkaSettings>();
-builder.Services.AddSingleton<ProducerConfig>(kafkaSettings);
+// Bind and register ConsumerSettings
+builder.Services.Configure<ConsumerSettings>(
+    builder.Configuration.GetSection("ConsumerSettings"));
 
-// Register the producer (Null key, string value)
-builder.Services.AddSingleton<IProducer<Null, string>>(provider =>
+// Bind and register ProducerSettings
+builder.Services.Configure<ProducerSettings>(
+    builder.Configuration.GetSection("ProducerSettings"));
+
+// (Optional) Register strongly-typed settings for direct injection
+builder.Services.AddSingleton(sp =>
+    sp.GetRequiredService<IOptions<ConsumerSettings>>().Value);
+builder.Services.AddSingleton(sp =>
+    sp.GetRequiredService<IOptions<ProducerSettings>>().Value);
+
+// Register Kafka consumer using DI-bound settings
+builder.Services.AddSingleton<IConsumer<Null, string>>(sp =>
 {
-    var config = provider.GetRequiredService<ProducerConfig>();
-    return new ProducerBuilder<Null, string>(config)
-        .SetValueSerializer(Serializers.Utf8) // optional, can swap out for JSON/Avro
-        .Build();
+    var settings = sp.GetRequiredService<ConsumerSettings>();
+    return new ConsumerBuilder<Null, string>(settings).Build();
 });
+
+// Register Kafka producer using DI-bound settings
+builder.Services.AddSingleton<IProducer<Null, string>>(sp =>
+{
+    var settings = sp.GetRequiredService<ProducerSettings>();
+    return new ProducerBuilder<Null, string>(settings).Build();
+});
+
+builder.Services.AddSingleton<IProducerService, ProducerService>();
+builder.Services.AddSingleton<IConsumerService, ConsumerService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

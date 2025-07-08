@@ -1,0 +1,72 @@
+﻿@page "/Cart"
+@using Ecom_Client.Services;
+@inject ICartService cartService
+@rendermode InteractiveServer
+
+
+<h3>Cart</h3>
+
+@if (!cartService.CartItems.Any())
+{
+    <p>Your cart is empty.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in cartService.CartItems)
+            {
+                <tr>
+                    <td>@item.Product.ProductName</td>
+                    <td>
+                        <input type="number" min="1" style="width:60px"
+                               value="@item.Quantity"
+                               @onchange="(e) => OnQuantityChanged(item.Product.ProductId, e)" />
+                    </td>
+                    <td>@(item.Product.Price* item.Quantity):C</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @onclick="() => RemoveFromCart(item.Product.ProductId)">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-success" @onclick="ProcessOrder">
+        Process Order
+    </button>
+}
+
+@code {
+
+    private void RemoveFromCart(Guid productId)
+    {
+        cartService.RemoveFromCart(productId);
+        StateHasChanged();
+    }
+
+    private void OnQuantityChanged(Guid productId, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int newQty) && newQty > 0)
+        {
+            cartService.UpdateQuantity(productId, newQty);
+            StateHasChanged();
+        }
+    }
+
+    private async Task ProcessOrder()
+    {
+        // Call your API or service here
+        cartService.Clear();
+        StateHasChanged();
+    }
+}

@@ -16,11 +16,13 @@ public class ProductService : IProductService
         return await response.Content.ReadFromJsonAsync<List<ProductDto>>()
                 ?? [];
     }
-    public async Task<ProductDto> GetProductByIdAsync(int id)
+    public async Task<ProductDto> GetProductByIdAsync(Guid productId)
     {
-        var response = await _httpClient.GetAsync($"api/products/{id}");
+        var response = await _httpClient.GetAsync($"api/products/{productId}");
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<ProductDto>();
+
+        return await response.Content.ReadFromJsonAsync<ProductDto>() ??
+               throw new KeyNotFoundException($"Product with id {productId} not found.");
     }
 }
 

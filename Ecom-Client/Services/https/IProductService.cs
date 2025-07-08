@@ -4,7 +4,7 @@ namespace Ecom_Client.Services.https
 {
     public interface IProductService
     {
-        Task<ProductDto> GetProductByIdAsync(int id);
+        Task<ProductDto> GetProductByIdAsync(Guid productId);
         Task<List<ProductDto>> GetProductsAsync();
     }
 }

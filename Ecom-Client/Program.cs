@@ -1,4 +1,5 @@
 using Ecom_Client.Components;
+using Ecom_Client.Services;
 using Ecom_Client.Services.https;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,9 @@ builder.Services.AddHttpClient<IProductService, ProductService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7063/");
 });
+
+
+builder.Services.AddSingleton<ICartService, CartService>();
 
 var app = builder.Build();
 
