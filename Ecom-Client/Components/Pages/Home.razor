@@ -2,6 +2,7 @@
 @using Ecom_Client.Models.DTOs
 @using Ecom_Client.Services.https
 @using Ecom_Client.Services;
+@using Ecommerce.Common.Models
 @inject IProductService productService
 @inject ICartService cartService;
 @rendermode InteractiveServer
@@ -74,7 +75,7 @@ else
 @code {
     private List<ProductDto> products = [];
     private Dictionary<Guid, int> quantities = new();
-    private List<CartItem> cart = new();
+    private List<Item> cart = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,10 +97,19 @@ else
 
     private void AddToCart(ProductDto product)
     {
-        if (!quantities.ContainsKey(product.ProductId))
-            quantities[product.ProductId] = 1;
-        var quantity = Math.Max(1, quantities[product.ProductId]);
-        cartService.AddToCart(product, quantity);
+        if (!quantities.TryGetValue(product.ProductId, out var quantity))
+            quantity = 1;
+
+        quantity = Math.Max(1, quantity);
+
+        var cartProduct = new Product
+        {
+            ProductId = product.ProductId,
+            Price = product.Price,
+            ProductName = product.ProductName,
+        };
+
+        cartService.AddToCart(cartProduct, quantity);
     }
 
     private int CartTotalCount => cartService.CartItems.Sum(x => x.Quantity);

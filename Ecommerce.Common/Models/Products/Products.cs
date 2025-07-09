@@ -1,5 +1,6 @@
 ﻿namespace Ecommerce.Common.Models.Products;
 
+
 public class CategoryDto
 {
     public Guid CategoryId { get; set; }
@@ -16,7 +17,6 @@ public class ProductDto
     public decimal Price { get; set; }
     public Guid CategoryId { get; set; }
     public string SKU { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
     public bool IsActive { get; set; }
 }
 

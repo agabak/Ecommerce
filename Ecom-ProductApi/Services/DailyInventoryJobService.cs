@@ -35,7 +35,7 @@ public class DailyInventoryJobService : BackgroundService
             }
 
             // Wait for 24 hours
-            await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+            //await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
         }
     }
 

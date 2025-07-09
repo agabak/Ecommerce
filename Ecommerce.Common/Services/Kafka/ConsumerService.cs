@@ -4,8 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Ecommerce.Common.Services.Kafka;
 
-public class ConsumerService(IConsumer<Null, string> _consumer, ILogger<IConsumerService> _logger, IConfiguration configuration)
-    : IConsumerService
+public class ConsumerService(
+    IConsumer<Null, string> _consumer,
+    ILogger<IConsumerService> _logger,
+    IConfiguration configuration
+) : IConsumerService
 {
     public async Task ProcessAsync(string topic, Func<string, Task> messageHandler, CancellationToken cancellationToken = default)
     {
@@ -20,22 +23,42 @@ public class ConsumerService(IConsumer<Null, string> _consumer, ILogger<IConsume
         {
             _logger.LogError("Kafka topic '{Topic}' does not exist. Aborting consumer start.", topic);
             return;
-            //throw new InvalidOperationException($"Kafka topic '{topic}' does not exist.");
         }
 
+        // Log topic metadata for diagnostics
+        var topicMeta = metadata.Topics.First(t => t.Topic == topic);
+        _logger.LogInformation("Topic '{Topic}' found with {Partitions} partitions.", topic, topicMeta.Partitions.Count);
+
+        // Log partition assignment events
+        ////_consumer.PositionTopicPartitionOffset += (_, partitions) =>
+        ////{
+        ////    _logger.LogInformation("Partitions assigned: {Partitions}", string.Join(",", partitions.Select(p => p.Partition.Value)));
+        ////};
+        ////_consumer.OnPartitionsRevoked += (_, partitions) =>
+        ////{
+        ////    _logger.LogInformation("Partitions revoked: {Partitions}", string.Join(",", partitions.Select(p => p.Partition.Value)));
+        ////};
+
         _consumer.Subscribe(topic);
-        _logger.LogInformation("Started Kafka consumer for topic: {Topic}", topic);
+        _logger.LogInformation("Subscribed to Kafka topic: {Topic}", topic);
+
         try
         {
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    var result = _consumer.Consume(cancellationToken);
-                    if (result?.Message?.Value != null)
+                    // Use a timeout to avoid indefinite blocking
+                    var result = _consumer.Consume(TimeSpan.FromSeconds(1));
+                    if (result != null && result.Message?.Value != null)
                     {
                         _logger.LogInformation("Received message: {Message}", result.Message.Value);
                         await messageHandler(result.Message.Value);
+                    }
+                    else
+                    {
+                        // Optional: log heartbeat or do other work
+                        //_logger.LogDebug("No message received in this interval.");
                     }
                 }
                 catch (ConsumeException ex)
@@ -51,7 +74,7 @@ public class ConsumerService(IConsumer<Null, string> _consumer, ILogger<IConsume
         finally
         {
             _consumer.Close();
+            _logger.LogInformation("Kafka consumer closed for topic: {Topic}", topic);
         }
     }
 }
-

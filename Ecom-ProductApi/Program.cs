@@ -1,5 +1,4 @@
 using Confluent.Kafka;
-using Ecom_ProductApi;
 using Ecom_ProductApi.Repositories;
 using Ecom_ProductApi.Services;
 using Ecommerce.Common.Services.Files;

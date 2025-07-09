@@ -1,20 +1,20 @@
-﻿using Ecom_Client.Models.DTOs;
+﻿using Ecommerce.Common.Models;
 
 namespace Ecom_Client.Services;
 
 public class CartService : ICartService
 {
-    public List<CartItem> CartItems { get; } = new();
+    public List<Item> CartItems { get; } = new();
 
     public event Action? OnChange;
 
-    public void AddToCart(ProductDto product, int quantity)
+    public void AddToCart(Product product, int quantity)
     {
         var item = CartItems.FirstOrDefault(x => x.Product.ProductId == product.ProductId);
         if (item != null)
             item.Quantity += quantity;
         else
-            CartItems.Add(new CartItem { Product = product, Quantity = quantity });
+            CartItems.Add(new Item { Product = product, Quantity = quantity });
 
         OnChange?.Invoke();
     }
