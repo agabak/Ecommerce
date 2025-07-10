@@ -6,28 +6,27 @@ namespace Ecommerce.Common.Services.Kafka;
 
 public class ConsumerService(
     IConsumer<Null, string> _consumer,
-    ILogger<IConsumerService> _logger,
-    IConfiguration configuration
+    ILogger<IConsumerService> _logger
 ) : IConsumerService
 {
     public async Task ProcessAsync(string topic, Func<string, Task> messageHandler, CancellationToken cancellationToken = default)
     {
-        // Check if the topic exists
-        var config = new AdminClientConfig { BootstrapServers = configuration.GetSection("ConsumerSettings:BootstrapServers").Value };
-        using var adminClient = new AdminClientBuilder(config).Build();
-        var metadata = adminClient.GetMetadata(topic, TimeSpan.FromSeconds(5));
+        //// Check if the topic exists
+        //var config = new AdminClientConfig { BootstrapServers = configuration.GetSection("ConsumerSettings:BootstrapServers").Value };
+        //using var adminClient = new AdminClientBuilder(config).Build();
+        //var metadata = adminClient.GetMetadata(topic, TimeSpan.FromSeconds(5));
 
-        bool topicExists = metadata.Topics.Any(t => t.Topic == topic && t.Error.Code == ErrorCode.NoError);
+        //bool topicExists = metadata.Topics.Any(t => t.Topic == topic && t.Error.Code == ErrorCode.NoError);
 
-        if (!topicExists)
-        {
-            _logger.LogError("Kafka topic '{Topic}' does not exist. Aborting consumer start.", topic);
-            return;
-        }
+        //if (!topicExists)
+        //{
+        //    _logger.LogError("Kafka topic '{Topic}' does not exist. Aborting consumer start.", topic);
+        //    return;
+        //}
 
-        // Log topic metadata for diagnostics
-        var topicMeta = metadata.Topics.First(t => t.Topic == topic);
-        _logger.LogInformation("Topic '{Topic}' found with {Partitions} partitions.", topic, topicMeta.Partitions.Count);
+        //// Log topic metadata for diagnostics
+        //var topicMeta = metadata.Topics.First(t => t.Topic == topic);
+        //_logger.LogInformation("Topic '{Topic}' found with {Partitions} partitions.", topic, topicMeta.Partitions.Count);
 
         // Log partition assignment events
         ////_consumer.PositionTopicPartitionOffset += (_, partitions) =>
