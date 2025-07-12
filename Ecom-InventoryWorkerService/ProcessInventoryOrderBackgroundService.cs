@@ -11,31 +11,22 @@ public class ProcessInventoryOrderBackgroundService : BackgroundService
     private readonly ILogger<ProcessInventoryOrderBackgroundService> _logger;
     private readonly IConsumerService _consumerService;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IKafkaTopicCheckerService _kafkaTopicCheckerService;
     private const string Topic_Order_Created = "Order-Created";
     private const string Topic_Order_Inventory_Created = "Order-Inventory-Created";
 
     public ProcessInventoryOrderBackgroundService(
         ILogger<ProcessInventoryOrderBackgroundService> logger,
         IConsumerService consumerService,
-        IServiceProvider serviceProvider,
-        IKafkaTopicCheckerService kafkaTopicCheckerService)
+        IServiceProvider serviceProvider)
     {
         _logger = logger;
         _consumerService = consumerService;
         _serviceProvider = serviceProvider;
-        _kafkaTopicCheckerService=kafkaTopicCheckerService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Check if the topic exists before starting the consumer
-         if(!_kafkaTopicCheckerService.TopicExists(Topic_Order_Created))
-          {
-                _logger.LogError("Kafka topic '{Topic}' does not exist. Aborting consumer start.", Topic_Order_Created);
-                return;
-          }
-
+      
          _logger.LogInformation("ProcessInventoryOrderBackgroundService started. Subscribing to topics...");
         await ProcessOrderCreate(stoppingToken);
     }

@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Confluent.Kafka;
 using Ecom_Client.Components;
 using Ecom_Client.Services;
@@ -17,6 +18,12 @@ builder.Services.AddHttpClient<IProductService, ProductService>(client =>
     client.BaseAddress = new Uri("https://localhost:7063/");
 });
 
+builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7254/");
+});
+
+builder.Services.AddBlazoredLocalStorage();
 // Bind and register ConsumerSettings
 builder.Services.Configure<ConsumerSettings>(
     builder.Configuration.GetSection("ConsumerSettings"));

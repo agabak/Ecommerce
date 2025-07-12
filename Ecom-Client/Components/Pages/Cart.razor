@@ -1,10 +1,16 @@
 ﻿@page "/Cart"
+@using Blazored.LocalStorage
+@using Ecom_Client.Helpers
+@using Ecom_Client.Models
 @using Ecom_Client.Services;
+@using Ecommerce.Common.Models
 @using Ecommerce.Common.Services.Kafka
+@using System.Text.Json
 @inject ICartService cartService
 @inject IProducerService _producerService;
 @rendermode InteractiveServer
-
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
 
 <h3>Cart</h3>
 
@@ -67,14 +73,45 @@ else
 
     private async Task ProcessOrder()
     {
-        var Items = cartService.CartItems.ToList();
+        // Validate and parse JWT token
+        var user = await GetAuthenticatedUserAsync();
 
-        var message = System.Text.Json.JsonSerializer.Serialize(Items);
+        if (user == null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
 
+        // Check for cart items
+        var cartItems = cartService.CartItems.ToList();
+        if (!cartItems.Any())
+            return;
+
+        // Create the cart and serialize items
+        var cart = CartFactory.CreateCartItems(user, cartItems);
+        var message = JsonSerializer.Serialize(cart); // Serialize the entire cart, not just items
+
+        // Publish order event
         await _producerService.ProduceAsync("Order-Created", message);
 
-        // Call your API or service here
+        // Post-processing
         cartService.Clear();
         StateHasChanged();
+
+        Navigation.NavigateTo("/");
+    }
+
+    // Helper to get authenticated user from token
+    private async Task<User?> GetAuthenticatedUserAsync()
+    {
+        var token = await LocalStorage.GetItemAsync<string>("jwt");
+        if (string.IsNullOrEmpty(token))
+            return null;
+
+        var jwt = JwtParser.ParsePayload<JwtUser>(token!);
+        if (jwt == null)
+            return null;
+
+        return UserFactory.CreateJwtUser(jwt);
     }
 }

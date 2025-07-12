@@ -86,7 +86,7 @@ namespace Ecom_AuthApi.Repositories
             }
         }
 
-        public async Task<UserWithAddressDto> GetUserWithAddressById(string userName, CancellationToken token = default)
+        public async Task<UserWithAddressDto?> GetUserWithAddressById(string userName, CancellationToken token = default)
         {
             var sql = @"
             select UserId, UserName, Email, FirstName, LastName,PasswordHash, Phone, Street, City, State, ZipCode from Users u
@@ -99,7 +99,7 @@ namespace Ecom_AuthApi.Repositories
                 new { UserName = userName },
                 commandType: CommandType.Text
             );
-            return user ?? new UserWithAddressDto();
+            return user;
         }
 
         public async Task<UpdateUserDto> UpdateUser(User user, CancellationToken token = default)

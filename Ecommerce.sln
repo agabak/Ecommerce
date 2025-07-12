@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecom-NotificationWorkerServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecom-Client", "Ecom-Client\Ecom-Client.csproj", "{EE2FB4DD-1E94-4857-A159-3671E3602994}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECom-Aspire.AppHost", "ECom-Aspire\ECom-Aspire.AppHost\ECom-Aspire.AppHost.csproj", "{E7D02DF6-3A1A-44E5-A077-A3F687A37175}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{EE2FB4DD-1E94-4857-A159-3671E3602994}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE2FB4DD-1E94-4857-A159-3671E3602994}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE2FB4DD-1E94-4857-A159-3671E3602994}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7D02DF6-3A1A-44E5-A077-A3F687A37175}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7D02DF6-3A1A-44E5-A077-A3F687A37175}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7D02DF6-3A1A-44E5-A077-A3F687A37175}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7D02DF6-3A1A-44E5-A077-A3F687A37175}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

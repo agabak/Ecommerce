@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Ecom_AuthApi.Services
 {
-    public class JwtTokenService(IConfiguration config) : IJwtTokenService
+    public sealed class JwtTokenService(IConfiguration config) : IJwtTokenService
     {
         private readonly string _issuer = config["Jwt:Issuer"]!;
         private readonly string _audience = config["Jwt:Audience"]!;
@@ -23,7 +23,7 @@ namespace Ecom_AuthApi.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim("Address", $"{user.Street}, {user.City}, {user.State}, {user.ZipCode}")
+                new Claim("address", $"{user.Street}, {user.City}, {user.State}, {user.ZipCode}")
             };
 
             var token = new JwtSecurityToken(

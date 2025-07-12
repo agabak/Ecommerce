@@ -12,7 +12,7 @@ namespace Ecom_AuthApi.Repositories
 
         Task<bool> DeleteUser(Guid userId, CancellationToken token = default);
 
-        Task<UserWithAddressDto> GetUserWithAddressById(string userName, CancellationToken token = default);
+        Task<UserWithAddressDto?> GetUserWithAddressById(string userName, CancellationToken token = default);
 
         Task<bool> IsUserUniqueAsync(string username, string email, CancellationToken token = default);
     }

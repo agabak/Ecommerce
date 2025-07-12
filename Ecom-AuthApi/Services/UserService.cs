@@ -1,10 +1,9 @@
 ﻿using Ecom_AuthApi.Model.Dtos;
 using Ecom_AuthApi.Repositories;
-using Ecommerce.Common.Models.Users;
 
 namespace Ecom_AuthApi.Services
 {
-    public class UserService(IUserRepository repository) : IUserService
+    public sealed class UserService(IUserRepository repository) : IUserService
     {
         public async Task<UserDto> CreateUser(UserAddressDto model, CancellationToken token = default)
         {

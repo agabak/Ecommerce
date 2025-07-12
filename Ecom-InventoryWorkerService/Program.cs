@@ -41,20 +41,8 @@ builder.Services.AddSingleton<IProducer<Null, string>>(sp =>
     return new ProducerBuilder<Null, string>(settings).Build();
 });
 
-builder.Services.AddSingleton<IAdminClient>(sp =>
-{
-    var config = new AdminClientConfig
-    {
-        BootstrapServers = builder.Configuration["ConsumerSettings:BootstrapServers"]
-    };
-    return new AdminClientBuilder(config).Build();
-});
-
 builder.Services.AddSingleton<IProducerService, ProducerService>();
 builder.Services.AddSingleton<IConsumerService, ConsumerService>();
-builder.Services.AddSingleton<IKafkaTopicCheckerService, KafkaTopicCheckerService>();
-
-
 
 builder.Services.AddHostedService<CreateInventoryBackgroundService>();
 builder.Services.AddHostedService<ProcessInventoryOrderBackgroundService>();
