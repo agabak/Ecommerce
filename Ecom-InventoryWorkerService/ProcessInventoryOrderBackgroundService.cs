@@ -49,19 +49,19 @@ public class ProcessInventoryOrderBackgroundService : BackgroundService
         var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
         var productService = scope.ServiceProvider.GetRequiredService<IProducerService>();
 
-        List<Item>? items = null;
+        Cart? cart = null;
 
         try
         {
-            items = JsonSerializer.Deserialize<List<Item>>(message);
+            cart = JsonSerializer.Deserialize<Cart>(message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to deserialize OrderCreated message: {Message}", message);
-            return;
+            throw;
         }
 
-        if (items == null || !items.Any())
+        if (cart == null || !cart.Items.Any())
         {
             _logger.LogWarning("Received empty or invalid cart items in message: {Message}", message);
             return;
@@ -69,16 +69,19 @@ public class ProcessInventoryOrderBackgroundService : BackgroundService
 
         try
         {
-            var result = await inventoryService.UpdateInventoryAfterOrderAsync(items, token);
+            var result = await inventoryService.UpdateInventoryAfterOrderAsync(cart.Items, token);
 
-            foreach (var item in items)
+            foreach (var item in cart.Items)
             {
                 result.TryGetValue(item.Product.ProductId, out var warehouseId);
 
                 var order = new Order
                 {
+                    User = cart.User,
+                    ShippingAddress = cart.User.Address,
                     OrderDate = DateTime.UtcNow,
                     TotalAmount = item.TotalPrice,
+                    PaymentType = cart.PaymentType,
                     OrderItems = new List<OrderItem>
                     {
                         new OrderItem
@@ -101,7 +104,7 @@ public class ProcessInventoryOrderBackgroundService : BackgroundService
                     item.Product.ProductId, warehouseId);
             }
 
-            _logger.LogInformation("Processed order created message with {Count} items", items.Count);
+            _logger.LogInformation("Processed order created message with {Count} items", cart.Items.Count);
         }
         catch (Exception ex)
         {

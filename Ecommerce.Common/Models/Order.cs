@@ -2,11 +2,13 @@
 {
     public class Order
     {
+        public User? User { get; set; } 
+
         public DateTime OrderDate { get; set; }
         public string Status { get; set; } = "In Process";
         public decimal TotalAmount { get; set; }
         public string ShippingAddress { get; set; } = string.Empty;
-        public Guid? PaymentId { get; set; }
+        public PaymentType PaymentType { get; set; } = PaymentType.CashOnDelivery;  
         public string TrackingNumber { get; set; } = string.Empty;
         public DateTime? UpdatedAt { get; set; }
 

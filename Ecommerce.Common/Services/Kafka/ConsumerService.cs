@@ -5,47 +5,43 @@ using Microsoft.Extensions.Logging;
 namespace Ecommerce.Common.Services.Kafka;
 
 public class ConsumerService(
-    IConsumer<Null, string> _consumer,
+    IConsumer<string, string> _consumer,
     ILogger<IConsumerService> _logger,
     IConfiguration configuration
 ) : IConsumerService
 {
     public async Task ProcessAsync(string topic, Func<string, Task> messageHandler, CancellationToken cancellationToken = default)
     {
-        // Check if the topic exists
-        var config = new AdminClientConfig { BootstrapServers = configuration.GetSection("ConsumerSettings:BootstrapServers").Value };
-        try
+        var bootstrapServers = configuration?.GetSection("ConsumerSettings:BootstrapServers")?.Value;
+        if (string.IsNullOrWhiteSpace(bootstrapServers))
         {
-            using var adminClient = new AdminClientBuilder(config).Build();
-            var metadata = adminClient.GetMetadata(topic, TimeSpan.FromSeconds(5));
-
-            bool topicExists = metadata.Topics.Any(t => t.Topic == topic && t.Error.Code == ErrorCode.NoError);
-
-            if (!topicExists)
-            {
-                _logger.LogError("Kafka topic '{Topic}' does not exist. Aborting consumer start.", topic);
-                return;
-            }
-
-            var topicMeta = metadata.Topics.First(t => t.Topic == topic);
-            _logger.LogInformation("Topic '{Topic}' found with {Partitions} partitions.", topic, topicMeta.Partitions.Count);
+            _logger.LogError("Kafka bootstrap servers are not configured.");
+            return;
         }
-        catch (Exception ex)
+
+        // Single metadata call to check both: is Kafka up, and is topic available.
+        if (!TryGetTopicMetadata(bootstrapServers, topic, out var topicExists))
         {
-            _logger.LogError(ex, "Failed to retrieve Kafka topic metadata.");
+            _logger.LogError("Kafka is not running or not reachable at {BootstrapServers}.", bootstrapServers);
+            return;
+        }
+
+        if (!topicExists)
+        {
+            _logger.LogError("Kafka topic '{Topic}' does not exist.", topic);
             return;
         }
 
         _consumer.Subscribe(topic);
         _logger.LogInformation("Subscribed to Kafka topic: {Topic}", topic);
-
         try
         {
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    var result = _consumer.Consume(cancellationToken); // Now honors cancellation
+                    var result = await Task.Run(() =>  _consumer.Consume(cancellationToken));
+
                     if (result != null && result.Message?.Value != null)
                     {
                         _logger.LogInformation("Received message: {Message} | Partition: {Partition} | Offset: {Offset}",
@@ -58,7 +54,7 @@ public class ConsumerService(
                         catch (Exception handlerEx)
                         {
                             _logger.LogError(handlerEx, "Error processing Kafka message: {Message}", result.Message.Value);
-                            // TODO: Dead-letter or handle poison message if necessary
+                            // Optionally handle poison message here
                         }
                     }
                     else
@@ -72,7 +68,6 @@ public class ConsumerService(
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
-                    // Graceful shutdown, just break
                     break;
                 }
                 catch (Exception ex)
@@ -92,6 +87,35 @@ public class ConsumerService(
                 _logger.LogWarning(ex, "Error closing Kafka consumer.");
             }
             _logger.LogInformation("Kafka consumer closed for topic: {Topic}", topic);
+        }
+    }
+
+    /// <summary>
+    /// Checks if Kafka is running and returns whether the topic exists.
+    /// </summary>
+    /// <param name="bootstrapServers">Kafka bootstrap servers.</param>
+    /// <param name="topic">Topic to check.</param>
+    /// <param name="topicExists">True if topic exists, false otherwise.</param>
+    /// <returns>True if Kafka is up (regardless of topic existence), false otherwise.</returns>
+    private bool TryGetTopicMetadata(string bootstrapServers, string topic, out bool topicExists)
+    {
+        topicExists = false;
+        try
+        {
+            using var adminClient = new AdminClientBuilder(new AdminClientConfig { BootstrapServers = bootstrapServers }).Build();
+            var metadata = adminClient.GetMetadata(topic, TimeSpan.FromSeconds(5));
+            topicExists = metadata.Topics.Any(t => t.Topic == topic && t.Error.Code == ErrorCode.NoError);
+            return true; // Kafka is reachable
+        }
+        catch (KafkaException kex)
+        {
+            _logger.LogError(kex, "Error reaching Kafka at {BootstrapServers}: {Error}", bootstrapServers, kex.Message);
+            return false; // Kafka not reachable
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while checking Kafka metadata.");
+            return false;
         }
     }
 }

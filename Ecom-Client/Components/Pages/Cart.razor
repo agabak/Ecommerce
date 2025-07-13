@@ -6,10 +6,11 @@
 @using Ecommerce.Common.Models
 @using Ecommerce.Common.Services.Kafka
 @using System.Text.Json
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject ICartService cartService
 @inject IProducerService _producerService;
 @rendermode InteractiveServer
-@inject ILocalStorageService LocalStorage
+@inject ILocalStorageService localStorageService
 @inject NavigationManager Navigation
 
 <h3>Cart</h3>
@@ -49,12 +50,22 @@ else
             }
         </tbody>
     </table>
+    // Display dropdown for payment methods, remember we hare enum paymentType
+    <h3>Select Payment Type</h3>
+    <select @bind="selectedPaymentType" class="form-select mb-3">
+        @foreach (var paymentType in Enum.GetValues<PaymentType>())
+        {
+            <option value="@paymentType">@PaymentTypeExtensions.GetDisplayName(paymentType)</option>
+        }
+    </select>
     <button class="btn btn-success" @onclick="ProcessOrder">
         Process Order
     </button>
 }
 
 @code {
+
+    private PaymentType selectedPaymentType = PaymentType.CashOnDelivery; // Default selection
 
     private void RemoveFromCart(Guid productId)
     {
@@ -89,7 +100,9 @@ else
 
         // Create the cart and serialize items
         var cart = CartFactory.CreateCartItems(user, cartItems);
+        cart.PaymentType = selectedPaymentType; // Set the selected payment type
         var message = JsonSerializer.Serialize(cart); // Serialize the entire cart, not just items
+
 
         // Publish order event
         await _producerService.ProduceAsync("Order-Created", message);
@@ -104,7 +117,7 @@ else
     // Helper to get authenticated user from token
     private async Task<User?> GetAuthenticatedUserAsync()
     {
-        var token = await LocalStorage.GetItemAsync<string>("jwt");
+        var token = await localStorageService.GetItemAsync<string>("jwt");
         if (string.IsNullOrEmpty(token))
             return null;
 

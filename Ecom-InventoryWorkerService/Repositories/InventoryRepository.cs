@@ -78,6 +78,7 @@ public class InventoryRepository : IInventoryRepository
         FROM dbo.Inventory
         WHERE ProductId = @ProductId;";
 
+        EnsureOpen(token);
         var inventory = await _db.QueryFirstOrDefaultAsync<(Guid InventoryId, int Quantity)>(
             new CommandDefinition(selectInventorySql, new { ProductId = productId }, cancellationToken: token)
         );
@@ -115,6 +116,12 @@ public class InventoryRepository : IInventoryRepository
                 new CommandDefinition(insertSql, new { ProductId = productId, WarehouseId = warehouseId }, cancellationToken: token)
             );
         }
+    }
+
+    private void EnsureOpen(CancellationToken ct)
+    {
+        if (_db.State != ConnectionState.Open)
+            _db.Open();
     }
 }
 

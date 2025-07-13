@@ -23,7 +23,8 @@ builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
     client.BaseAddress = new Uri("https://localhost:7254/");
 });
 
-builder.Services.AddBlazoredLocalStorage();
+ builder.Services.AddBlazoredLocalStorage();
+
 // Bind and register ConsumerSettings
 builder.Services.Configure<ConsumerSettings>(
     builder.Configuration.GetSection("ConsumerSettings"));
@@ -39,17 +40,17 @@ builder.Services.AddSingleton(sp =>
     sp.GetRequiredService<IOptions<ProducerSettings>>().Value);
 
 // Register Kafka consumer using DI-bound settings
-builder.Services.AddSingleton<IConsumer<Null, string>>(sp =>
+builder.Services.AddSingleton<IConsumer<string, string>>(sp =>
 {
     var settings = sp.GetRequiredService<ConsumerSettings>();
-    return new ConsumerBuilder<Null, string>(settings).Build();
+    return new ConsumerBuilder<string, string>(settings).Build();
 });
 
 // Register Kafka producer using DI-bound settings
-builder.Services.AddSingleton<IProducer<Null, string>>(sp =>
+builder.Services.AddSingleton<IProducer<string, string>>(sp =>
 {
     var settings = sp.GetRequiredService<ProducerSettings>();
-    return new ProducerBuilder<Null, string>(settings).Build();
+    return new ProducerBuilder<string, string>(settings).Build();
 });
 
 builder.Services.AddSingleton<IProducerService, ProducerService>();

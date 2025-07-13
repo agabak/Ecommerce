@@ -1,11 +1,11 @@
 ﻿@page "/login"  
 @using Blazored.LocalStorage
 @using Ecom_Client.Services.https  
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject IAuthService AuthService  
 @rendermode InteractiveServer  
 @inject NavigationManager Navigation
-@inject ILocalStorageService LocalStorage
-
+@inject ILocalStorageService localStorageService
 <h3>Login</h3>  
 
 <div class="form-group">  
@@ -36,7 +36,8 @@
         if (!string.IsNullOrEmpty(token))  
         {  
             // Store the token in local storage
-            await LocalStorage.SetItemAsync("jwt", token);
+            await localStorageService.SetItemAsync("jwt", token);
+           
             Navigation.NavigateTo("/");
         }  
         else  

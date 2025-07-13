@@ -3,16 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Ecommerce.Common.Services.Kafka;
 
-public class ProducerService : IProducerService
+public class ProducerService(IProducer<string, string> _producer,
+    ILogger<ProducerService> _logger) : IProducerService
 {
-    private readonly IProducer<Null, string> _producer;
-    private readonly ILogger<ProducerService> _logger;
-
-    public ProducerService(IProducer<Null, string> producer, ILogger<ProducerService> logger)
-    {
-        _producer = producer;
-        _logger = logger;
-    }
 
     public async Task ProduceAsync(string topic, string message, CancellationToken cancellationToken = default)
     {
@@ -20,10 +13,21 @@ public class ProducerService : IProducerService
         {
             var result = await _producer.ProduceAsync(
                 topic,
-                new Message<Null, string> { Value = message },
+                new Message<string, string> { Value = message },
                 cancellationToken
             );
-            _logger.LogInformation("Delivered message to {TopicPartitionOffset}", result.TopicPartitionOffset);
+
+            if(result.Status == PersistenceStatus.Persisted)
+            {
+                _logger.LogInformation("Message produced to topic {Topic} at partition {Partition}, offset {Offset}",
+                    topic, result.Partition, result.Offset);
+            }
+            else
+            {
+                _logger.LogWarning("Message produced to topic {Topic} but not persisted. Status: {Status}",
+                    topic, result.Status);
+
+            }
         }
         catch (ProduceException<Null, string> ex)
         {
