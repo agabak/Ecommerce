@@ -5,7 +5,7 @@ namespace Ecom_AuthApi.Services
 {
     public interface IUserService
     {
-        Task<UserDto> CreateUser(UserAddressDto model, CancellationToken token = default);
+        Task<UserDto> CreateUser(CreateUserDto model, CancellationToken token = default);
         Task<UpdateUserDto> UpdateUser(Guid userId, UpdateUserDto model, CancellationToken token = default);
 
         Task<bool> DeleteUser(Guid userId, CancellationToken token = default);

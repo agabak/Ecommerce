@@ -13,15 +13,26 @@ public class UsersController(IUserService service, IJwtTokenService jwtTokenServ
 {
     [AllowAnonymous]
     [HttpPost]
-    public async Task<IActionResult> CreateUser([FromBody] UserAddressDto model, CancellationToken token = default)
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserDto model, CancellationToken token = default)
     {
-        if (model == null)
-            return BadRequest("User data is required.");
 
-        if (!await service.IsUserUniqueAsync(model.Username, model.Email, token))
+        var isUnique = await service.IsUserUniqueAsync(model.Username, model.Email, token);
+        if (!isUnique)
             return Conflict("Username or email already exists.");
 
-        return Ok(await service.CreateUser(model, token));
+        var createdUser = await service.CreateUser(model, token);
+        if (createdUser == null)
+            return StatusCode(500, "An error occurred while creating the user.");
+
+        var userDetails = await service.GetUserWithAddressById(createdUser.Username, token);
+        if (userDetails == null)
+            return StatusCode(500, "User was created but could not be retrieved.");
+
+        var jwtToken = jwtTokenService.GenerateToken(userDetails);
+        if (string.IsNullOrEmpty(jwtToken))
+            return StatusCode(500, "Failed to generate JWT token.");
+
+        return Ok(jwtToken);
     }
 
     [AllowAnonymous]

@@ -14,11 +14,12 @@ namespace Ecom_AuthApi.Repositories
             using var tran = db.BeginTransaction();
             try
             {
+                // Insert Address
                 var addressInsertSql = @"
-                INSERT INTO UserAddress (Street, City, State, ZipCode,Created)
-                OUTPUT INSERTED.AddressId
-                VALUES (@Street, @City, @State, @ZipCode, GETDATE());
-                ";
+                    INSERT INTO UserAddress (Street, City, State, ZipCode, Created)
+                    OUTPUT INSERTED.AddressId
+                    VALUES (@Street, @City, @State, @ZipCode, GETDATE());
+                    ";
                 var addressId = await db.QuerySingleAsync<Guid>(
                     addressInsertSql,
                     new
@@ -31,11 +32,12 @@ namespace Ecom_AuthApi.Repositories
                     transaction: tran
                 );
 
+                // Insert User
                 var userInsertSql = @"
-                INSERT INTO Users (AddressId, Username, Email, PasswordHash, FirstName, LastName, Phone)
-                OUTPUT INSERTED.UserId
-                VALUES (@AddressId, @Username, @Email, @PasswordHash, @FirstName, @LastName, @Phone);
-                ";
+                    INSERT INTO Users (AddressId, Username, Email, PasswordHash, FirstName, LastName, Phone)
+                    OUTPUT INSERTED.UserId
+                    VALUES (@AddressId, @Username, @Email, @PasswordHash, @FirstName, @LastName, @Phone);
+                    ";
                 var userId = await db.QuerySingleAsync<Guid>(
                     userInsertSql,
                     new
@@ -50,6 +52,32 @@ namespace Ecom_AuthApi.Repositories
                     },
                     transaction: tran
                 );
+
+                // Insert UserRoles
+                if (dto.Roles?.Any() == true)
+                {
+                    // Get RoleIds by role name
+                    var roleQuery = "SELECT RoleId, Name FROM Roles WHERE Name IN @RoleNames";
+                    var roles = await db.QueryAsync<(Guid RoleId, string Name)>(
+                        roleQuery,
+                        new { RoleNames = dto.Roles },
+                        transaction: tran
+                    );
+
+                    var roleInsertSql = @"
+                            INSERT INTO UserRoles (UserId, RoleId, AssignedAt)
+                            VALUES (@UserId, @RoleId, GETDATE());
+                            ";
+
+                    foreach (var role in roles)
+                    {
+                        await db.ExecuteAsync(
+                            roleInsertSql,
+                            new { UserId = userId, RoleId = role.RoleId },
+                            transaction: tran
+                        );
+                    }
+                }
 
                 tran.Commit();
 

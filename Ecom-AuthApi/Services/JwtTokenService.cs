@@ -27,7 +27,8 @@ namespace Ecom_AuthApi.Services
             };
 
             // Add roles as claims
-             claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            if(user.Roles.Count!=0)
+                 claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var token = new JwtSecurityToken(
                 issuer: _issuer,

@@ -22,7 +22,7 @@ public class AuthService : IAuthService
         return json?["token"] ?? throw new KeyNotFoundException("Token not found in response.");
     }
 
-    public async Task<string> Register(RegisterRequest model, CancellationToken token = default)
+    public async Task<string> Register(RegisterUserDto model, CancellationToken token = default)
     {
         var response = await _httpClient.PostAsJsonAsync("api/Users", model, token);
         return response.IsSuccessStatusCode

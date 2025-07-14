@@ -5,22 +5,12 @@ namespace Ecom_AuthApi.Services
 {
     public sealed class UserService(IUserRepository repository) : IUserService
     {
-        public async Task<UserDto> CreateUser(UserAddressDto model, CancellationToken token = default)
+        public async Task<UserDto> CreateUser(CreateUserDto model, CancellationToken token = default)
         {
-           var userDto = new CreateUserDto
-            {
-                Username = model.Username,
-                Email = model.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Phone = model.Phone,
-                Street = model.Street,
-                City = model.City,
-                State = model.State,
-                ZipCode = model.ZipCode
-            };
-            return await repository.CreateUser(userDto, token);
+            ValidateCreateUserModel(model);
+            model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
+            return await repository.CreateUser(model, token);
         }
 
         public async Task<bool> DeleteUser(Guid userId, CancellationToken token = default)
@@ -56,6 +46,16 @@ namespace Ecom_AuthApi.Services
         public async Task<bool> IsUserUniqueAsync(string username, string email, CancellationToken token = default)
         {
             return await repository.IsUserUniqueAsync(username, email, token);
+        }
+
+        private static void ValidateCreateUserModel(CreateUserDto model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Username))
+                throw new ArgumentException("Username is required.", nameof(model.Username));
+            if (string.IsNullOrWhiteSpace(model.Email))
+                throw new ArgumentException("Email is required.", nameof(model.Email));
+            if (string.IsNullOrWhiteSpace(model.Password))
+                throw new ArgumentException("Password is required.", nameof(model.Password));
         }
     }
 }

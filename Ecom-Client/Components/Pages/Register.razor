@@ -1,0 +1,127 @@
+﻿@page "/register"
+@using Ecom_Client.Services.https
+@using Ecom_Client.Models
+@using Blazored.LocalStorage
+@inject IAuthService authService
+@inject NavigationManager navigation
+@rendermode InteractiveServer
+@inject ILocalStorageService localStorageService
+
+<h3>Register User</h3>
+
+<EditForm Model="@model" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label>Username</label>
+        <InputText class="form-control" @bind-Value="model.Username" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="model.Email" />
+    </div>
+
+    <div class="mb-3">
+        <label>Password</label>
+        <InputText type="password" class="form-control" @bind-Value="model.Password" />
+    </div>
+
+    <div class="mb-3">
+        <label>First Name</label>
+        <InputText class="form-control" @bind-Value="model.FirstName" />
+    </div>
+
+    <div class="mb-3">
+        <label>Last Name</label>
+        <InputText class="form-control" @bind-Value="model.LastName" />
+    </div>
+
+    <div class="mb-3">
+        <label>Phone</label>
+        <InputText class="form-control" @bind-Value="model.Phone" />
+    </div>
+
+    <div class="mb-3">
+        <label>Street</label>
+        <InputText class="form-control" @bind-Value="model.Street" />
+    </div>
+
+    <div class="mb-3">
+        <label>City</label>
+        <InputText class="form-control" @bind-Value="model.City" />
+    </div>
+
+    <div class="mb-3">
+        <label>State</label>
+        <InputText class="form-control" @bind-Value="model.State" />
+    </div>
+
+    <div class="mb-3">
+        <label>Zip Code</label>
+        <InputText class="form-control" @bind-Value="model.ZipCode" />
+    </div>
+
+    <div class="mb-3">
+        <label>Roles</label>
+        @foreach (var role in availableRoles)
+        {
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" @onchange="e => ToggleRole(role, e.Value!.ToString())" />
+                <label class="form-check-label">@role</label>
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+    <div class="mt-3 alert alert-info">@statusMessage</div>
+}
+
+@code {
+    private RegisterUserDto model = new();
+    private string statusMessage = string.Empty;
+
+    private List<string> availableRoles = new() { "Customer", "Other" };
+
+    private void ToggleRole(string role, string isChecked)
+    {
+        if (isChecked == "True")
+        {
+            if (!model.Roles.Contains(role))
+                model.Roles.Add(role);
+        }
+        else
+        {
+            model.Roles.Remove(role);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var jwtToken = await authService.Register(model);
+
+            if (!string.IsNullOrEmpty(jwtToken))
+            {
+                statusMessage = "User registered successfully.";
+                await localStorageService.SetItemAsync("jwt", jwtToken);
+                navigation.NavigateTo("/");
+                return;
+            }
+            else
+            {
+                statusMessage = "Failed to register user.";
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error: {ex.Message}";
+        }
+    }
+}

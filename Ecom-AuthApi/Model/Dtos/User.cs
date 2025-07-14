@@ -11,10 +11,12 @@
         // User fields
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty; // This will be hashed before saving
         public string PasswordHash { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;    // Should be FirstName if not a typo
         public string LastName { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
+        public List<string> Roles { get; set; } = new();
     }
 
     public record UpdateUserDto(
@@ -39,6 +41,8 @@
         public string FirstName { get; set; } = string.Empty;    // Should be FirstName if not a typo
         public string LastName { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
+
+        public List<string> Roles { get; set; } = new();
     }
 
 
