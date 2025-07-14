@@ -88,19 +88,47 @@ namespace Ecom_AuthApi.Repositories
 
         public async Task<UserWithAddressDto?> GetUserWithAddressById(string userName, CancellationToken token = default)
         {
-            var sql = @"
-            select UserId, UserName, Email, FirstName, LastName,PasswordHash, Phone, Street, City, State, ZipCode from Users u
-            join UserAddress ad on u.AddressId = ad.AddressId
-            where u.UserName = @UserName;
-            ";
+            const string sql = @"
+                SELECT 
+                    u.UserId, u.UserName, u.Email, u.FirstName, u.LastName, u.PasswordHash, u.Phone,
+                    ad.Street, ad.City, ad.State, ad.ZipCode,
+                    r.Name AS RoleName
+                FROM Users u
+                JOIN UserAddress ad ON u.AddressId = ad.AddressId
+                LEFT JOIN UserRoles ur ON u.UserId = ur.UserId
+                LEFT JOIN Roles r ON ur.RoleId = r.RoleId
+                WHERE u.UserName = @UserName;
+                ";
+
             EnsureOpen(token);
-            var user = await db.QuerySingleOrDefaultAsync<UserWithAddressDto>(
+
+            var userDictionary = new Dictionary<Guid, UserWithAddressDto>();
+
+            var result = await db.QueryAsync<UserWithAddressDto, string?, UserWithAddressDto>(
                 sql,
+                (user, role) =>
+                {
+                    if (!userDictionary.TryGetValue(user.UserId, out var userEntry))
+                    {
+                        userEntry = user;
+                        userEntry.Roles = new List<string>();
+                        userDictionary.Add(user.UserId, userEntry);
+                    }
+
+                    if (!string.IsNullOrEmpty(role) && !userEntry.Roles.Contains(role))
+                    {
+                        userEntry.Roles.Add(role);
+                    }
+
+                    return userEntry;
+                },
                 new { UserName = userName },
-                commandType: CommandType.Text
+                splitOn: "RoleName"
             );
-            return user;
+
+            return result.FirstOrDefault();
         }
+
 
         public async Task<UpdateUserDto> UpdateUser(User user, CancellationToken token = default)
         {

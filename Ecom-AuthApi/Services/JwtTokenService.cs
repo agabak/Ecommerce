@@ -26,6 +26,9 @@ namespace Ecom_AuthApi.Services
                 new Claim("address", $"{user.Street}, {user.City}, {user.State}, {user.ZipCode}")
             };
 
+            // Add roles as claims
+             claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
             var token = new JwtSecurityToken(
                 issuer: _issuer,
                 audience: _audience,

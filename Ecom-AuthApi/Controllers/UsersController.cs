@@ -65,6 +65,7 @@ public class UsersController(IUserService service, IJwtTokenService jwtTokenServ
         return Ok(updatedUser);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{userId:guid}")]
     public async Task<IActionResult> DeleteUser(Guid userId, CancellationToken token = default)
     {

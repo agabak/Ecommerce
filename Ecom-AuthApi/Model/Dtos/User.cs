@@ -66,6 +66,8 @@
         public string City { get; set; } = default!;
         public string State { get; set; } = default!;
         public string ZipCode { get; set; } = default!;
+
+        public List<string> Roles { get; set; } = new();
     }
 
     public record UserLoginDto(string UserName, string Password);
