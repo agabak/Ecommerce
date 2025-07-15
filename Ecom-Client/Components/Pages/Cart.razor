@@ -104,8 +104,8 @@ else
         var message = JsonSerializer.Serialize(cart); // Serialize the entire cart, not just items
 
 
-        // Publish order event
-        await _producerService.ProduceAsync("Order-Created", message);
+        // Publish order event  order.created
+        await _producerService.ProduceAsync("Order.Created", message);
 
         // Post-processing
         cartService.Clear();

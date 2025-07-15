@@ -10,11 +10,11 @@ public class CreateOrderBackgroundService(
     ILogger<CreateOrderBackgroundService> logger,
     IServiceProvider serviceProvider) : BackgroundService
 {
-    private const string TopicOrderInventoryCreated = "Order-Inventory-Created";
+    private const string TopicOrder_Inventory_Reserved = "Inventory.Reserved";
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("CreateOrderBackgroundService started. Subscribing to topic: {Topic}", TopicOrderInventoryCreated);
+        logger.LogInformation("CreateOrderBackgroundService started. Subscribing to topic: {Topic}", TopicOrder_Inventory_Reserved);
 
         await ProcessCreateOrder(stoppingToken);
 
@@ -24,7 +24,7 @@ public class CreateOrderBackgroundService(
     private async Task ProcessCreateOrder(CancellationToken cancellationToken)
     {
         await consumer.ProcessAsync(
-            topic: TopicOrderInventoryCreated,
+            topic: TopicOrder_Inventory_Reserved,
             messageHandler: async (message) =>
             {
                 await HandleCreateOrderMessageAsync(message, cancellationToken);

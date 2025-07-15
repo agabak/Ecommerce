@@ -10,8 +10,8 @@ namespace Ecom_ProductApi.Repositories
 
         Task<ProductWithImageDto?> GetProductByIdAsync(Guid productId, CancellationToken token = default);
 
-        Task UpsertInventoryAsync(Guid productId,CancellationToken token = default);
+        Task MarkProductInventorySentAsync(Guid productId,CancellationToken token = default);
 
-        Task<List<Guid>> GetAllProductIdsAsync(CancellationToken cancellation);
+        Task<List<Guid>> GetProductsNotInInventoryAsync(CancellationToken cancellation);
     }
 }

@@ -45,7 +45,6 @@ builder.Services.AddSingleton<IProducerService, ProducerService>();
 builder.Services.AddSingleton<IConsumerService, ConsumerService>();
 
 builder.Services.AddHostedService<CreateInventoryBackgroundService>();
-builder.Services.AddHostedService<ProcessInventoryOrderBackgroundService>();
 
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();

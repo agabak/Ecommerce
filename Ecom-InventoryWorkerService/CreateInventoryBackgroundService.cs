@@ -8,7 +8,7 @@ public class CreateInventoryBackgroundService : BackgroundService
     private readonly ILogger<CreateInventoryBackgroundService> _logger;
     private readonly IConsumerService _consumerService;
     private readonly IServiceProvider _serviceProvider;
-    private const string Topic_Create_Inventory = "Create-Inventory";
+    private const string Topic_Create_Inventory = "Create.Inventory";
    
     public CreateInventoryBackgroundService(
         ILogger<CreateInventoryBackgroundService> logger,
@@ -52,7 +52,7 @@ public class CreateInventoryBackgroundService : BackgroundService
 
         try
         {
-            await inventoryService.UpsertInventoryAsync(productId, token);
+            await inventoryService.EnsureInventoryRecordAsync(productId, token);
             _logger.LogInformation("Successfully processed inventory message for productId: {ProductId}", productId);
         }
         catch (Exception ex)

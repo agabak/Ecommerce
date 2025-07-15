@@ -40,22 +40,26 @@ public class ConsumerService(
             {
                 try
                 {
-                    var result = await Task.Run(() =>  _consumer.Consume(cancellationToken));
+                    var result =  _consumer.Consume(TimeSpan.FromSeconds(5));
+                    // Check if result is null or if the message is null
 
                     if (result != null && result.Message?.Value != null)
                     {
                         _logger.LogInformation("Received message: {Message} | Partition: {Partition} | Offset: {Offset}",
                             result.Message.Value, result.Partition, result.Offset);
 
-                        try
+                        // Start handler as background task (fire-and-forget)
+                        _ = Task.Run(async () =>
                         {
-                            await messageHandler(result.Message.Value);
-                        }
-                        catch (Exception handlerEx)
-                        {
-                            _logger.LogError(handlerEx, "Error processing Kafka message: {Message}", result.Message.Value);
-                            // Optionally handle poison message here
-                        }
+                            try
+                            {
+                                await messageHandler(result.Message.Value);
+                            }
+                            catch (Exception handlerEx)
+                            {
+                                _logger.LogError(handlerEx, "Error processing Kafka message: {Message}", result.Message.Value);
+                            }
+                        });
                     }
                     else
                     {
@@ -68,8 +72,8 @@ public class ConsumerService(
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
-                    break;
-                }
+                   break; // Graceful shutdown
+            }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Unexpected error in Kafka consumer.");
@@ -81,10 +85,11 @@ public class ConsumerService(
             try
             {
                 _consumer.Close();
+                _consumer.Dispose();
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error closing Kafka consumer.");
+                _logger.LogWarning(ex, "Error closing or disposing Kafka consumer.");
             }
             _logger.LogInformation("Kafka consumer closed for topic: {Topic}", topic);
         }

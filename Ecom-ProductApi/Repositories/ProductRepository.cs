@@ -150,7 +150,7 @@ public class ProductRepository(IDbConnection _db) : IProductRepository
         return productDict.Values.FirstOrDefault();
     }
 
-    public Task UpsertInventoryAsync(Guid productId, CancellationToken token = default)
+    public Task MarkProductInventorySentAsync(Guid productId, CancellationToken token = default)
     {
        const string sql = @"
             UPDATE Products
@@ -160,7 +160,7 @@ public class ProductRepository(IDbConnection _db) : IProductRepository
         return _db.ExecuteAsync(new CommandDefinition(sql, new { ProductId = productId }, cancellationToken: token));
     }
 
-    public async Task<List<Guid>> GetAllProductIdsAsync(CancellationToken cancellation)
+    public async Task<List<Guid>> GetProductsNotInInventoryAsync(CancellationToken cancellation)
     {
         // This method retrieves all product IDs from the Products table where IsInventory 0.
         const string sql = @"

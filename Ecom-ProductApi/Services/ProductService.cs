@@ -7,47 +7,45 @@ namespace Ecom_ProductApi.Services;
 public class ProductService(IProductRepository repository,
     IBlobService blobService, IKafkaProducerService kafkaProducer) : IProductService
 {
+    private const string Topic_Create_Inventory = "Create.Inventory";
+
     public async Task<Guid> InsertProductWithImagesAsync(ProductDto product, CancellationToken token = default)
     {
-
         var images = new List<ProductImageDto>();
+        var unsentProductIds = await repository.GetProductsNotInInventoryAsync(token) ?? new List<Guid>();
+        Guid productId;
 
-        if (product.Images == null || product.Images.Count == 0)
+        // Handle images (if any)
+        if (product.Images != null && product.Images.Count > 0)
         {
-            // No images, insert product only
-            return await repository.InsertProductWithImagesAsync(product, images, token);
-        }
-
-        int sortOrder = 0;
-
-        foreach (var image in product.Images)
-        {
-            if (image == null)
-                continue;
-
-            // Validate content type
-            if (string.IsNullOrEmpty(image.ContentType) || !image.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("Invalid file type. Only images are allowed.");
-
-            if (!string.IsNullOrWhiteSpace(image.FileName))
+            int sortOrder = 0;
+            foreach (var image in product.Images)
             {
-                var url = await blobService.UploadFileAsync(image, image.FileName, token);
-                images.Add(new ProductImageDto
+                if (image == null)
+                    continue;
+
+                if (string.IsNullOrEmpty(image.ContentType) || !image.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+                    throw new ArgumentException("Invalid file type. Only images are allowed.");
+
+                if (!string.IsNullOrWhiteSpace(image.FileName))
                 {
-                    ImageUrl = url,
-                    SortOrder = sortOrder++
-                });
+                    var url = await blobService.UploadFileAsync(image, image.FileName, token);
+                    images.Add(new ProductImageDto
+                    {
+                        ImageUrl = url,
+                        SortOrder = sortOrder++
+                    });
+                }
             }
         }
 
-        var productId = await repository.InsertProductWithImagesAsync(product, images, token);
+        productId = await repository.InsertProductWithImagesAsync(product, images, token);
+        
+        unsentProductIds.Add(productId);
 
-        // Send product creation event to Kafka
-        if (productId != Guid.Empty)
+        foreach (var id in unsentProductIds)
         {
-            await kafkaProducer.ProduceAsync("Create-Inventory",productId.ToString(), token);
-
-            await repository.UpsertInventoryAsync(productId, token);
+            await ProcessCreateInventory(id, token);
         }
 
         return productId;
@@ -61,5 +59,15 @@ public class ProductService(IProductRepository repository,
     public async Task<ProductWithImageDto?> GetProductByIdAsync(Guid productId, CancellationToken token = default)
     {
         return await repository.GetProductByIdAsync(productId, token);
+    }
+
+    private async Task ProcessCreateInventory(Guid productId, CancellationToken token)
+    {
+        if (productId != Guid.Empty)
+        {
+            await kafkaProducer.ProduceAsync(Topic_Create_Inventory, productId.ToString(), token);
+
+            await repository.MarkProductInventorySentAsync(productId, token);
+        }
     }
 }

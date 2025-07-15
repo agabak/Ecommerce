@@ -11,9 +11,9 @@ namespace Ecom_InventoryWorkerService.Services
           return await repository.UpdateInventoryAfterOrderAsync(items, token);
         }
 
-        public async Task UpsertInventoryAsync(Guid productId, CancellationToken token = default)
+        public async Task EnsureInventoryRecordAsync(Guid productId, CancellationToken token = default)
         {
-           await repository.UpsertInventoryAsync(productId, token);
+           await repository.EnsureInventoryRecordAsync(productId, token);
         }
     }
 }
