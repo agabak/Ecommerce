@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\Ecom-OderWorkerService\Ecom-OderWorkerService.csproj" />
     <ProjectReference Include="..\..\Ecom-OrderApi\Ecom-OrderApi.csproj" />
     <ProjectReference Include="..\..\Ecom-OrderInventoryService\Ecom-OrderInventoryService.csproj" />
+    <ProjectReference Include="..\..\Ecom-PaymentWorkerService\Ecom-PaymentWorkerService.csproj" />
     <ProjectReference Include="..\..\Ecom-ProductApi\Ecom-ProductApi.csproj" />
     <ProjectReference Include="..\..\Ecom-ProductWorkerService\Ecom-ProductWorkerService.csproj" />
     <ProjectReference Include="..\..\Ecommerce.Common\Ecommerce.Common.csproj" />

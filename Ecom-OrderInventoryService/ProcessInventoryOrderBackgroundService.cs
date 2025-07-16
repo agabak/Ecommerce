@@ -1,5 +1,4 @@
-﻿
-using Ecom_OrderInventoryService.Services;
+﻿using Ecom_OrderInventoryService.Services;
 using Ecommerce.Common.Models;
 using Ecommerce.Common.Services.Kafka;
 using System.Text.Json;
@@ -9,34 +8,32 @@ namespace Ecom_OrderInventoryService;
 public class ProcessInventoryOrderBackgroundService(
     ILogger<ProcessInventoryOrderBackgroundService> _logger,
     IConsumerService _consumerService,
+    IProducerService _producerService,
     IServiceProvider _serviceProvider
     ) : BackgroundService
 {
 
     private const string Topic_Order_Created = "Order.Created";
     private const string Topic_Inventory_Reserved = "Inventory.Reserved";
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("ProcessInventoryOrderBackgroundService started. Subscribing to topics...");
-        await ProcessOrderCreate(stoppingToken);
-    }
 
-    private async Task ProcessOrderCreate(CancellationToken cancellationToken)
-    {
         await _consumerService.ProcessAsync(
             topic: Topic_Order_Created,
             messageHandler: async (message) =>
             {
                 try
                 {
-                    await HandleOrderCreatedMessageAsync(message, cancellationToken);
+                    await HandleOrderCreatedMessageAsync(message, stoppingToken);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error handling OrderCreated message: {Message}", message);
                 }
             },
-            cancellationToken: cancellationToken
+            cancellationToken: stoppingToken
         );
     }
 
@@ -44,7 +41,6 @@ public class ProcessInventoryOrderBackgroundService(
     {
         using var scope = _serviceProvider.CreateScope();
         var inventoryService = scope.ServiceProvider.GetRequiredService<IInventoryService>();
-        var productService = scope.ServiceProvider.GetRequiredService<IProducerService>();
 
         Cart? cart = null;
 
@@ -79,8 +75,8 @@ public class ProcessInventoryOrderBackgroundService(
                     OrderDate = DateTime.UtcNow,
                     TotalAmount = item.TotalPrice,
                     PaymentType = cart.PaymentType,
-                    OrderItems = new List<OrderItem>
-                    {
+                    OrderItems =
+                    [
                         new OrderItem
                         {
                             ProductId = item.Product.ProductId,
@@ -89,13 +85,12 @@ public class ProcessInventoryOrderBackgroundService(
                             TotalPrice = item.TotalPrice,
                             WarehouseId = warehouseId
                         }
-                    }
+                    ]
                 };
 
                 var messageContent = JsonSerializer.Serialize(order);
 
-                // Send the order to the Order-Inventory-Created topic
-                await productService.ProduceAsync(Topic_Inventory_Reserved, messageContent);
+                await _producerService.ProduceAsync(Topic_Inventory_Reserved, messageContent, token);
 
                 _logger.LogInformation("Order for ProductId: {ProductId} sent to WarehouseId: {WarehouseId}",
                     item.Product.ProductId, warehouseId);

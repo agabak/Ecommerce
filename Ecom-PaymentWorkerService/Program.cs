@@ -1,13 +1,13 @@
-using Ecom_NotificationWorkerService;
-using Ecom_NotificationWorkerService.Repositories;
-using Ecom_NotificationWorkerService.Services;
+using Ecom_PaymentWorkerService;
+using Ecom_PaymentWorkerService.Repositories;
+using Ecom_PaymentWorkerService.Services;
 using Ecommerce.Common.Settings.Extension;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// IDbConnection
+// IDbConnection 
 builder.Services.AddScoped<IDbConnection>(sp =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -16,9 +16,11 @@ builder.Services.AddScoped<IDbConnection>(sp =>
 
 builder.Services.AddKafkaConsumerProducer(builder.Configuration);
 
-builder.Services.AddHostedService<ConfirmationBackgroundWorkerService>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<INotificationService, NotificationService>();    
+// Add other services as needed
+builder.Services.AddHostedService<PaymentBackgroundWorkerService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 var app = builder.Build();
 

@@ -18,6 +18,7 @@ builder.AddProject<Projects.Ecom_ProductWorkerService>("productservice");
 builder.AddProject<Projects.Ecom_OderWorkerService>("orderservice");
 builder.AddProject<Projects.Ecom_NotificationWorkerService>("notificationservice");
 builder.AddProject<Projects.Ecom_OrderInventoryService>("orderinventoryservice");
+builder.AddProject<Projects.Ecom_PaymentWorkerService>("paymentworkerservice");
 
 builder.Build().Run();
 

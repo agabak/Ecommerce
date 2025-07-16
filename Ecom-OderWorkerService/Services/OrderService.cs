@@ -5,8 +5,8 @@ namespace Ecom_OderWorkerService.Services;
 
 public class OrderService(IOrderRepository repository) : IOrderService
 {
-    public async Task CreateOrderAsync(Order? order, CancellationToken cancellationToken)
+    public async Task<Guid> CreateOrderAsync(Order? order, CancellationToken cancellationToken)
     {
-       await repository.InsertFullOrderAsync(order!, cancellationToken);
+      return  await repository.InsertFullOrderAsync(order!, cancellationToken);
     }
 }

@@ -4,5 +4,5 @@ namespace Ecom_OderWorkerService.Services;
 
 public interface IOrderService
 {
-    Task CreateOrderAsync(Order? order, CancellationToken cancellationToken);
+    Task<Guid> CreateOrderAsync(Order? order, CancellationToken cancellationToken);
 }

@@ -7,11 +7,12 @@ namespace Ecom_OderWorkerService;
 
 public class CreateOrderBackgroundService(
     IConsumerService consumer,
+    IProducerService producerService,
     ILogger<CreateOrderBackgroundService> logger,
     IServiceProvider serviceProvider) : BackgroundService
 {
     private const string TopicOrder_Inventory_Reserved = "Inventory.Reserved";
-
+    private const string TopicPayment_Completed = "Payment.Completed";
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogInformation("CreateOrderBackgroundService started. Subscribing to topic: {Topic}", TopicOrder_Inventory_Reserved);
@@ -37,7 +38,6 @@ public class CreateOrderBackgroundService(
     {
         using var scope = serviceProvider.CreateScope();
         var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
-
         try
         {
             logger.LogInformation("Received order creation message: {Message}", message);
@@ -49,9 +49,18 @@ public class CreateOrderBackgroundService(
                 return;
             }
 
-            await orderService.CreateOrderAsync(order, cancellationToken);
+            var orderId =  await orderService.CreateOrderAsync(order, cancellationToken);
 
-            logger.LogInformation("Successfully processed order creation for User: {User}, OrderItems: {Count}",
+             if (orderId != Guid.Empty)  
+             {
+                  await producerService.ProduceAsync(
+                      topic: TopicPayment_Completed,
+                      message: orderId.ToString(), 
+                      cancellationToken: cancellationToken
+                  );
+             }
+
+                logger.LogInformation("Successfully processed order creation for User: {User}, OrderItems: {Count}",
                 order.User?.Email ?? "Unknown", order.OrderItems.Count);
         }
         catch (Exception ex)
