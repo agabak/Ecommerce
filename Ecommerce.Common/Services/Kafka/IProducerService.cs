@@ -2,6 +2,6 @@
 {
     public interface IProducerService
     {
-        Task ProduceAsync(string topic, string message, CancellationToken cancellationToken = default);
+        Task ProduceAsync(string topic,string key, string message, CancellationToken cancellationToken = default);
     }
 }

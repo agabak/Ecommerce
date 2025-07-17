@@ -16,7 +16,7 @@ public class KafkaProducerService : IKafkaProducerService
 
     public async Task ProduceAsync(string topic, string message, CancellationToken cancellationToken = default)
     {
-        await _producer.ProduceAsync(topic, message, cancellationToken);
+        await _producer.ProduceAsync(topic,message, message, cancellationToken);
     }
 }
 

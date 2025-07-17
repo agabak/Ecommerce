@@ -90,7 +90,7 @@ public class ProcessInventoryOrderBackgroundService(
 
                 var messageContent = JsonSerializer.Serialize(order);
 
-                await _producerService.ProduceAsync(Topic_Inventory_Reserved, messageContent, token);
+                await _producerService.ProduceAsync(Topic_Inventory_Reserved,order.User.UserId.ToString() ,messageContent, token);
 
                 _logger.LogInformation("Order for ProductId: {ProductId} sent to WarehouseId: {WarehouseId}",
                     item.Product.ProductId, warehouseId);

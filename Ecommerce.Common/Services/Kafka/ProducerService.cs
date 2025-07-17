@@ -7,13 +7,13 @@ public class ProducerService(IProducer<string, string> _producer,
     ILogger<ProducerService> _logger) : IProducerService
 {
 
-    public async Task ProduceAsync(string topic, string message, CancellationToken cancellationToken = default)
+    public async Task ProduceAsync(string topic,string key, string message, CancellationToken cancellationToken = default)
     {
         try
         {
             var result = await _producer.ProduceAsync(
                 topic,
-                new Message<string, string> { Value = message },
+                new Message<string, string> {Key = key, Value = message },
                 cancellationToken
             );
 

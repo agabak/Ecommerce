@@ -7,17 +7,15 @@ public class BlobService : IBlobService
 {
     private readonly BlobContainerClient _containerClient;
 
-    public BlobService(string connectionString, string containerName)
+    public BlobService(BlobContainerClient containerClient)
     {
-        if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(nameof(connectionString));
-        if (string.IsNullOrWhiteSpace(containerName)) throw new ArgumentNullException(nameof(containerName));
-        _containerClient = new BlobContainerClient(connectionString, containerName);
+        _containerClient = containerClient ?? throw new ArgumentNullException(nameof(containerClient));
     }
 
     private BlobClient GetBlobClient(string blobName)
     {
         if (string.IsNullOrWhiteSpace(blobName))
-            throw new ArgumentException("Blob name cannot be null or empty.", nameof(blobName));
+            throw new ArgumentNullException("Blob name cannot be null or empty.", nameof(blobName));
         return _containerClient.GetBlobClient(blobName);
     }
 

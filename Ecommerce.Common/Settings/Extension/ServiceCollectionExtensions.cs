@@ -35,6 +35,9 @@ public static class ServiceCollectionExtensions
             return new ProducerBuilder<string, string>(settings).Build();
         });
 
+        services.AddSingleton<IKafkaAdminClient, KafkaAdminClient>();
+        services.AddSingleton<IKafkaConsumer, KafkaConsumerAdapter>();
+
         services.AddSingleton<IProducerService, ProducerService>();
         services.AddSingleton<IConsumerService, ConsumerService>();
 

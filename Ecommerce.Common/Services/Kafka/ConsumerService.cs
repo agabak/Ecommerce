@@ -5,9 +5,10 @@ using Microsoft.Extensions.Logging;
 namespace Ecommerce.Common.Services.Kafka;
 
 public class ConsumerService(
-    IConsumer<string, string> _consumer,
+    IKafkaConsumer  _consumer,
     ILogger<IConsumerService> _logger,
-    IConfiguration configuration
+    IConfiguration configuration,
+    IKafkaAdminClient _adminClient
 ) : IConsumerService
 {
     public async Task ProcessAsync(string topic, Func<string, Task> messageHandler, CancellationToken cancellationToken = default)
@@ -20,7 +21,7 @@ public class ConsumerService(
         }
 
         // Single metadata call to check both: is Kafka up, and is topic available.
-        if (!TryGetTopicMetadata(bootstrapServers, topic, out var topicExists))
+        if (!_adminClient.TryGetTopicMetadata(bootstrapServers, topic, out var topicExists))
         {
             _logger.LogError("Kafka is not running or not reachable at {BootstrapServers}.", bootstrapServers);
             return;

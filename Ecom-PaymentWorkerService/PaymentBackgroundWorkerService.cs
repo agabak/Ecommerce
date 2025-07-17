@@ -50,6 +50,7 @@ public class PaymentBackgroundWorkerService : BackgroundService
                 await paymentService.ProcessStatusAsync(orderId, stoppingToken);
                 await _producerService.ProduceAsync(
                     topic: TopicOrder_Notification,
+                    key: orderId.ToString(),
                     message: message,
                     cancellationToken: stoppingToken
                 );

@@ -55,6 +55,7 @@ public class CreateOrderBackgroundService(
              {
                   await producerService.ProduceAsync(
                       topic: TopicPayment_Completed,
+                      key:order?.User?.UserId.ToString() ?? "UserId",
                       message: orderId.ToString(), 
                       cancellationToken: cancellationToken
                   );
