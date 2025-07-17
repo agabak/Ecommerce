@@ -1,12 +1,8 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
+using Ecommerce.Common.Services.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using NUnit.Framework;
-using Ecommerce.Common.Services.Kafka;
 
 namespace Ecommerce.Common.Tests.Services.Kafka
 {

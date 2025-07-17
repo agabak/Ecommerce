@@ -44,6 +44,7 @@ namespace ECom_Common.Test.Extensions
             // Assert
             Assert.Multiple(() =>
             {
+                Assert.That(provider.GetService<IKafkaConsumer>(), Is.Not.Null);
                 Assert.That(provider.GetService<IKafkaAdminClient>(), Is.Not.Null);
                 Assert.That(provider.GetService<IConsumerService>(), Is.Not.Null);
                 Assert.That(provider.GetService<IProducerService>(), Is.Not.Null);
@@ -71,12 +72,14 @@ namespace ECom_Common.Test.Extensions
             var descriptorProducer = services.FirstOrDefault(d => d.ServiceType == typeof(IProducerService));
             var descriptorConsumer = services.FirstOrDefault(d => d.ServiceType == typeof(IConsumerService));
             var descriptorKafkaAdmin = services.FirstOrDefault(d => d.ServiceType == typeof(IKafkaAdminClient));
+            var descriptorKafkaConsumer = services.FirstOrDefault(d => d.ServiceType == typeof(IKafkaConsumer));
 
             Assert.Multiple(() =>
             {
                 Assert.That(descriptorProducer?.Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
                 Assert.That(descriptorConsumer?.Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
                 Assert.That(descriptorKafkaAdmin?.Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
+                Assert.That(descriptorKafkaConsumer?.Lifetime, Is.EqualTo(ServiceLifetime.Singleton));
             });
         }
 
@@ -95,12 +98,15 @@ namespace ECom_Common.Test.Extensions
             var consumerInstance2 = provider.GetService<IConsumerService>();
             var kafkaAdminInstance1 = provider.GetService<IKafkaAdminClient>();
             var kafkaAdminInstance2 = provider.GetService<IKafkaAdminClient>();
+            var kafkaConsumerInstance1 = provider.GetService<IKafkaConsumer>();
+            var kafkaConsumerInstance2 = provider.GetService<IKafkaConsumer>();
 
             Assert.Multiple(() =>
             {
                 Assert.That(instance1, Is.SameAs(instance2));
                 Assert.That(consumerInstance1, Is.SameAs(consumerInstance2));
                 Assert.That(kafkaAdminInstance1, Is.SameAs(kafkaAdminInstance2));
+                Assert.That(kafkaConsumerInstance1, Is.SameAs(kafkaConsumerInstance2));
             });
         }
     }
