@@ -1,17 +1,15 @@
 using Ecom_NotificationWorkerService;
+using Ecom_NotificationWorkerService.DataAccess;
 using Ecom_NotificationWorkerService.Repositories;
 using Ecom_NotificationWorkerService.Services;
 using Ecommerce.Common.Settings.Extension;
-using Microsoft.Data.SqlClient;
-using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // IDbConnection
-builder.Services.AddScoped<IDbConnection>(sp =>
+builder.Services.AddScoped<IOrderDataAccessProvider>(sp =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    return new SqlConnection(connectionString);
+    return new OrderDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")!);
 });
 
 builder.Services.AddKafkaConsumerProducer(builder.Configuration);

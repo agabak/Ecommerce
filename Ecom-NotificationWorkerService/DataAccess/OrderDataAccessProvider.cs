@@ -1,18 +1,19 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
 
-namespace Ecom_ProductApi.DataAccess;
+namespace Ecom_NotificationWorkerService.DataAccess;
 
-public class ProductDataAccessProvider : IProductDataAccessProvider
+public class OrderDataAccessProvider : IOrderDataAccessProvider
 {
     private readonly string _connectionString;
-    public ProductDataAccessProvider(string connectionString)
+
+    public OrderDataAccessProvider(string connectionString)
     {
         _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
     }
 
     public IDbConnection CreateDbConnection()
     {
-        return new SqlConnection(_connectionString);
+       return new SqlConnection(_connectionString); 
     }
 }

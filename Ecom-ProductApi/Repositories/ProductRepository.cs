@@ -1,11 +1,19 @@
 ﻿using Dapper;
+using Ecom_ProductApi.DataAccess;
 using Ecom_ProductApi.Models.DTos;
 using System.Data;
 
 namespace Ecom_ProductApi.Repositories;
 
-public class ProductRepository(IDbConnection _db) : IProductRepository
+public class ProductRepository: IProductRepository
 {
+    private readonly IDbConnection _db;
+    private readonly IProductDataAccessProvider _provider;
+    public ProductRepository(IProductDataAccessProvider provider)
+    {
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _db = _provider.CreateDbConnection();
+    }
 
     public async Task<Guid> InsertProductWithImagesAsync(ProductDto product,
         List<ProductImageDto> images, CancellationToken token = default)

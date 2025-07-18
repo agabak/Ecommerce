@@ -48,12 +48,24 @@ public class PaymentBackgroundWorkerService : BackgroundService
             if (Guid.TryParse(message?.Trim(), out var orderId))
             {
                 await paymentService.ProcessStatusAsync(orderId, stoppingToken);
-                await _producerService.ProduceAsync(
+              var deliveryResult =   await _producerService.ProduceAsync(
                     topic: TopicOrder_Notification,
                     key: orderId.ToString(),
                     message: message,
                     cancellationToken: stoppingToken
                 );
+
+                if (deliveryResult.Status != Confluent.Kafka.PersistenceStatus.Persisted)
+                {
+                    _logger.LogError("Failed to produce message to topic {Topic} for OrderId: {OrderId}. Status: {Status}",
+                        TopicOrder_Notification, orderId, deliveryResult.Status);
+                }
+                else
+                {
+                    _logger.LogInformation("Produced message to topic {Topic} for OrderId: {OrderId}", 
+                        TopicOrder_Notification, orderId);
+                }
+
                 _logger.LogInformation("Processed payment completed for OrderId: {OrderId}", orderId);
             }
             else

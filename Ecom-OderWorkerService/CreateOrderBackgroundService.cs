@@ -1,4 +1,5 @@
-﻿using Ecom_OderWorkerService.Services;
+﻿using Confluent.Kafka;
+using Ecom_OderWorkerService.Services;
 using Ecommerce.Common.Models;
 using Ecommerce.Common.Services.Kafka;
 using System.Text.Json;
@@ -53,12 +54,18 @@ public class CreateOrderBackgroundService(
 
              if (orderId != Guid.Empty)  
              {
-                  await producerService.ProduceAsync(
+               var deliveryResult =   await producerService.ProduceAsync(
                       topic: TopicPayment_Completed,
                       key:order?.User?.UserId.ToString() ?? "UserId",
                       message: orderId.ToString(), 
                       cancellationToken: cancellationToken
                   );
+
+                if (deliveryResult != null && deliveryResult.Status == PersistenceStatus.Persisted) 
+                { 
+                  logger.LogInformation("Order creation message successfully produced to topic {Topic} with key {Key} and value {Value}",
+                      TopicPayment_Completed, order?.User?.UserId.ToString() ?? "UserId", orderId);
+                }
              }
 
                 logger.LogInformation("Successfully processed order creation for User: {User}, OrderItems: {Count}",

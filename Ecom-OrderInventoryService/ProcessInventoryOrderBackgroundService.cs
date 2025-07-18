@@ -1,4 +1,5 @@
-﻿using Ecom_OrderInventoryService.Services;
+﻿using Confluent.Kafka;
+using Ecom_OrderInventoryService.Services;
 using Ecommerce.Common.Models;
 using Ecommerce.Common.Services.Kafka;
 using System.Text.Json;
@@ -90,7 +91,18 @@ public class ProcessInventoryOrderBackgroundService(
 
                 var messageContent = JsonSerializer.Serialize(order);
 
-                await _producerService.ProduceAsync(Topic_Inventory_Reserved,order.User.UserId.ToString() ,messageContent, token);
+                var deliveryResult = await _producerService.ProduceAsync(Topic_Inventory_Reserved,order.User.UserId.ToString() ,messageContent, token);
+
+                if (deliveryResult != null && deliveryResult.Status == PersistenceStatus.Persisted)
+                {
+                    _logger.LogInformation("Order for ProductId: {ProductId} successfully sent to topic {Topic} with WarehouseId: {WarehouseId}",
+                        item.Product.ProductId, Topic_Inventory_Reserved, warehouseId);
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to send order for ProductId: {ProductId} to topic {Topic}. Result: {Result}",
+                        item.Product.ProductId, Topic_Inventory_Reserved, deliveryResult?.Status);
+                }
 
                 _logger.LogInformation("Order for ProductId: {ProductId} sent to WarehouseId: {WarehouseId}",
                     item.Product.ProductId, warehouseId);

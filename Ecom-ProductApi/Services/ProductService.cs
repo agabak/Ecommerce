@@ -1,11 +1,13 @@
-﻿using Ecom_ProductApi.Models.DTos;
+﻿using Confluent.Kafka;
+using Ecom_ProductApi.Models.DTos;
 using Ecom_ProductApi.Repositories;
 using Ecommerce.Common.Services.Files;
+using Ecommerce.Common.Services.Kafka;
 
 namespace Ecom_ProductApi.Services;
 
 public class ProductService(IProductRepository repository,
-    IBlobService blobService, IKafkaProducerService kafkaProducer) : IProductService
+    IBlobService blobService, IProducerService producerService) : IProductService
 {
     private const string Topic_Create_Inventory = "Create.Inventory";
 
@@ -65,9 +67,16 @@ public class ProductService(IProductRepository repository,
     {
         if (productId != Guid.Empty)
         {
-            await kafkaProducer.ProduceAsync(Topic_Create_Inventory, productId.ToString(), token);
+           var deliveryResult =  await producerService.ProduceAsync(Topic_Create_Inventory, productId.ToString(),productId.ToString(), token);
 
-            await repository.MarkProductInventorySentAsync(productId, token);
+            if (deliveryResult != null && deliveryResult.Status == PersistenceStatus.Persisted)
+            {
+                await repository.MarkProductInventorySentAsync(productId, token);
+            }
+            else
+            {
+                throw new Exception($"Failed to produce message to topic {Topic_Create_Inventory} for ProductId: {productId}. Status: {deliveryResult?.Status}");
+            }
         }
     }
 }
