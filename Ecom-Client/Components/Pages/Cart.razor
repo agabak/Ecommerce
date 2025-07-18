@@ -1,21 +1,25 @@
 ﻿@page "/Cart"
+@rendermode InteractiveServer
+
+
 @using Blazored.LocalStorage
+@using Confluent.Kafka
 @using Ecom_Client.Helpers
 @using Ecom_Client.Models
-@using Ecom_Client.Services;
+@using Ecom_Client.Services
 @using Ecommerce.Common.Models
 @using Ecommerce.Common.Services.Kafka
 @using System.Text.Json
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@inject ICartService cartService
-@inject IProducerService _producerService;
-@rendermode InteractiveServer
-@inject ILocalStorageService localStorageService
+
+@inject ICartService CartService
+@inject IProducerService ProducerService
+@inject ILocalStorageService LocalStorage
 @inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 
 <h3>Cart</h3>
 
-@if (!cartService.CartItems.Any())
+@if (!CartService.CartItems.Any())
 {
     <p>Your cart is empty.</p>
 }
@@ -31,7 +35,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in cartService.CartItems)
+            @foreach (var item in CartService.CartItems)
             {
                 <tr>
                     <td>@item.Product.ProductName</td>
@@ -40,7 +44,7 @@ else
                                value="@item.Quantity"
                                @onchange="(e) => OnQuantityChanged(item.Product.ProductId, e)" />
                     </td>
-                    <td>@(item.TotalPrice):C</td>
+                    <td>@item.TotalPrice:C</td>
                     <td>
                         <button class="btn btn-danger btn-sm" @onclick="() => RemoveFromCart(item.Product.ProductId)">
                             Remove
@@ -50,7 +54,7 @@ else
             }
         </tbody>
     </table>
-    // Display dropdown for payment methods, remember we hare enum paymentType
+
     <h3>Select Payment Type</h3>
     <select @bind="selectedPaymentType" class="form-select mb-3">
         @foreach (var paymentType in Enum.GetValues<PaymentType>())
@@ -58,66 +62,71 @@ else
             <option value="@paymentType">@PaymentTypeExtensions.GetDisplayName(paymentType)</option>
         }
     </select>
-    <button class="btn btn-success" @onclick="ProcessOrder">
+
+    <button class="btn btn-success" @onclick="ProcessOrderAsync">
         Process Order
     </button>
+
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <div class="alert alert-danger mt-3">@Message</div>
+    }
 }
 
 @code {
-
-    private PaymentType selectedPaymentType = PaymentType.CashOnDelivery; // Default selection
+    private PaymentType selectedPaymentType = PaymentType.CashOnDelivery;
+    private string Message { get; set; } = string.Empty;
 
     private void RemoveFromCart(Guid productId)
     {
-        cartService.RemoveFromCart(productId);
-        StateHasChanged();
+        CartService.RemoveFromCart(productId);
     }
 
     private void OnQuantityChanged(Guid productId, ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int newQty) && newQty > 0)
         {
-            cartService.UpdateQuantity(productId, newQty);
-            StateHasChanged();
+            CartService.UpdateQuantity(productId, newQty);
         }
     }
 
-    private async Task ProcessOrder()
+    private async Task ProcessOrderAsync()
     {
-        // Validate and parse JWT token
-        var user = await GetAuthenticatedUserAsync();
+        Message = string.Empty;
 
+        var user = await GetAuthenticatedUserAsync();
         if (user == null)
         {
             Navigation.NavigateTo("/login");
             return;
         }
 
-        // Check for cart items
-        var cartItems = cartService.CartItems.ToList();
+        var cartItems = CartService.CartItems.ToList();
         if (!cartItems.Any())
+        {
+            await ShowMessageAsync("Your cart is empty.");
             return;
+        }
 
-        // Create the cart and serialize items
         var cart = CartFactory.CreateCartItems(user, cartItems);
-        cart.PaymentType = selectedPaymentType; // Set the selected payment type
-        var message = JsonSerializer.Serialize(cart); // Serialize the entire cart, not just items
+        cart.PaymentType = selectedPaymentType;
+        var cartMessage = JsonSerializer.Serialize(cart);
 
-
-        // we don't have orderId yet, so we use userId as key
-        await _producerService.ProduceAsync("Order.Created", cart.User.UserId.ToString(), message);
-
-        // Post-processing
-        cartService.Clear();
-        StateHasChanged();
-
-        Navigation.NavigateTo("/");
+        var result = await ProducerService.ProduceAsync("Order.Created", cart.User.UserId.ToString(), cartMessage);
+        if (result != null && result.Status == PersistenceStatus.Persisted)
+        {
+            CartService.Clear();
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            await ShowMessageAsync("Failed to create order. Please try again.");
+        }
     }
 
-    // Helper to get authenticated user from token
     private async Task<User?> GetAuthenticatedUserAsync()
     {
-        var token = await localStorageService.GetItemAsync<string>("jwt");
+        var token = await LocalStorage.GetItemAsync<string>("jwt");
         if (string.IsNullOrEmpty(token))
             return null;
 
@@ -126,5 +135,10 @@ else
             return null;
 
         return UserFactory.CreateJwtUser(jwt);
+    }
+
+    private async Task ShowMessageAsync(string msg)
+    {
+        await JSRuntime.InvokeVoidAsync("alert", msg);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Ecom_InventoryWorkerService.Databases;
 using Ecommerce.Common.Models;
 using System.Data;
 
@@ -7,10 +8,12 @@ namespace Ecom_InventoryWorkerService.Repositories;
 public class InventoryRepository : IInventoryRepository
 {
     private readonly IDbConnection _db;
+    private readonly IInventoryConnectionProvider _provider;
 
-    public InventoryRepository(IDbConnection db)
+    public InventoryRepository(IInventoryConnectionProvider provider)
     {
-        _db = db;
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _db = provider.DbConnection();
     }
 
     public async Task<Dictionary<Guid, Guid>> UpdateInventoryAfterOrderAsync(List<Item> items, CancellationToken token)

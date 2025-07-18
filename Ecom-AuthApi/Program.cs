@@ -1,18 +1,19 @@
+using Ecom_AuthApi.DataAccess;
 using Ecom_AuthApi.Repositories;
 using Ecom_AuthApi.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddScoped<IDbConnection>
-    (_ => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IUserDataAccessProvider>
+    (_ => new UserDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 
 // ---------- JWT ----------
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new("Jwt:Key not found");
@@ -36,9 +37,9 @@ builder.Services
             ValidateAudience         = true,
             ValidateLifetime         = true,
             ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
             ValidIssuer   = issuer,
-            ValidAudience = audience,
-            IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
+            ValidAudience = audience
         };
     })
     // ---------- Minimal, transient cookie just for external login hand-off ----------

@@ -7,11 +7,12 @@ public class ProducerService(IProducer<string, string> _producer,
     ILogger<ProducerService> _logger) : IProducerService
 {
 
-    public async Task ProduceAsync(string topic,string key, string message, CancellationToken cancellationToken = default)
+    public async Task<DeliveryResult<string, string>> ProduceAsync(string topic,string key, string message, CancellationToken cancellationToken = default)
     {
+
         try
         {
-            var result = await _producer.ProduceAsync(
+           var result = await _producer.ProduceAsync(
                 topic,
                 new Message<string, string> {Key = key, Value = message },
                 cancellationToken
@@ -26,18 +27,19 @@ public class ProducerService(IProducer<string, string> _producer,
             {
                 _logger.LogWarning("Message produced to topic {Topic} but not persisted. Status: {Status}",
                     topic, result.Status);
-
             }
+
+            return result;
         }
-        catch (ProduceException<Null, string> ex)
+        catch (ProduceException<string, string> ex)
         {
             _logger.LogError(ex, "Kafka delivery failed to topic {Topic}: {Reason}", topic, ex.Error.Reason);
-            throw;
+            return default!;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while producing message to topic {Topic}", topic);
-            throw;
+            return default!;
         }
     }
 }

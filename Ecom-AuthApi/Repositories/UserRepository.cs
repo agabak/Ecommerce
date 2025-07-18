@@ -1,12 +1,21 @@
 ﻿using Dapper;
+using Ecom_AuthApi.DataAccess;
 using Ecom_AuthApi.Model.Dtos;
 using Ecommerce.Common.Models.Users;
 using System.Data;
 
 namespace Ecom_AuthApi.Repositories
 {
-    public class UserRepository(IDbConnection db) : IUserRepository
+    public class UserRepository : IUserRepository
     {
+        private readonly IUserDataAccessProvider _connection;
+        private readonly IDbConnection db;
+
+        public UserRepository(IUserDataAccessProvider connection)
+        {
+            _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            db = _connection.DbConnection();
+        }
         public async Task<UserDto> CreateUser(CreateUserDto dto, CancellationToken token = default)
         {
             EnsureOpen(token);
