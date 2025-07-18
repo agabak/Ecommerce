@@ -1,7 +1,8 @@
 using Azure.Storage.Blobs;
-using Ecom_ProductApi.DataAccess;
 using Ecom_ProductApi.Repositories;
 using Ecom_ProductApi.Services;
+using Ecommerce.Common.DataAccess;
+using Ecommerce.Common.DataAccess.Product;
 using Ecommerce.Common.Services.Files;
 using Ecommerce.Common.Settings.Extension;
 
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddScoped<IProductDataAccessProvider>
+builder.Services.AddScoped<IDataAccessProvider>
     (_ => new ProductDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")!)); // Updated to use Microsoft.Data.SqlClient.SqlConnection
 
 

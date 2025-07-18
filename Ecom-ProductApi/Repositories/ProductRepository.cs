@@ -1,6 +1,6 @@
 ﻿using Dapper;
-using Ecom_ProductApi.DataAccess;
 using Ecom_ProductApi.Models.DTos;
+using Ecommerce.Common.DataAccess;
 using System.Data;
 
 namespace Ecom_ProductApi.Repositories;
@@ -8,8 +8,8 @@ namespace Ecom_ProductApi.Repositories;
 public class ProductRepository: IProductRepository
 {
     private readonly IDbConnection _db;
-    private readonly IProductDataAccessProvider _provider;
-    public ProductRepository(IProductDataAccessProvider provider)
+    private readonly IDataAccessProvider _provider;
+    public ProductRepository(IDataAccessProvider provider)
     {
         _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         _db = _provider.CreateDbConnection();

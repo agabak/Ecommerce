@@ -1,6 +1,7 @@
-using Ecom_AuthApi.DataAccess;
 using Ecom_AuthApi.Repositories;
 using Ecom_AuthApi.Services;
+using Ecommerce.Common.DataAccess;
+using Ecommerce.Common.DataAccess.User;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -10,8 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddScoped<IUserDataAccessProvider>
-    (_ => new UserDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IDataAccessProvider>
+    (_ => new UserDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")!));
 
 
 

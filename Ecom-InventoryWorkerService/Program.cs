@@ -1,15 +1,16 @@
 using Ecom_InventoryWorkerService;
-using Ecom_InventoryWorkerService.Databases;
 using Ecom_InventoryWorkerService.Repositories;
 using Ecom_InventoryWorkerService.Services;
+using Ecommerce.Common.DataAccess;
+using Ecommerce.Common.DataAccess.Inventory;
 using Ecommerce.Common.Settings.Extension;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IInventoryConnectionProvider>
-    (_ => new InventoryConnectionProvider(builder.Configuration.GetConnectionString("DefaultConnection"))); // Updated to use Microsoft.Data.SqlClient.SqlConnection
+builder.Services.AddScoped<IDataAccessProvider>
+    (_ => new InventoryDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")!)); // Updated to use Microsoft.Data.SqlClient.SqlConnection
 
 builder.Services.AddKafkaConsumerProducer(builder.Configuration);
 

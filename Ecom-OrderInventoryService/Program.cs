@@ -1,14 +1,15 @@
 using Ecom_OrderInventoryService;
 using Ecom_OrderInventoryService.Repositories;
 using Ecom_OrderInventoryService.Services;
+using Ecommerce.Common.DataAccess;
+using Ecommerce.Common.DataAccess.Inventory;
 using Ecommerce.Common.Settings.Extension;
-using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // IDbConnection setup
-builder.Services.AddScoped<IDbConnection>
-    (_ => new Microsoft.Data.SqlClient.SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))); 
+builder.Services.AddScoped<IDataAccessProvider>
+    (_ => new InventoryDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")!)); 
 
 builder.Services.AddKafkaConsumerProducer(builder.Configuration);
 

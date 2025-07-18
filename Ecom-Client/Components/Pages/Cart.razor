@@ -104,6 +104,7 @@ else
         var cartItems = CartService.CartItems.ToList();
         if (!cartItems.Any())
         {
+            Message = "Your cart is empty.";
             await ShowMessageAsync("Your cart is empty.");
             return;
         }
@@ -120,6 +121,7 @@ else
         }
         else
         {
+            Message = "Failed to create order. Please try again.";
             await ShowMessageAsync("Failed to create order. Please try again.");
         }
     }

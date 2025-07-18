@@ -1,11 +1,20 @@
 ﻿using System.Data;
 using Dapper;
+using Ecommerce.Common.DataAccess;
 
 namespace Ecom_PaymentWorkerService.Repositories;
 
-public class OrderRepository(IDbConnection _db) : IOrderRepository
+public class OrderRepository : IOrderRepository
 {
-   public async Task UpdateOrderStatus(Guid orderId, string status, CancellationToken token)
+    private readonly IDbConnection _db;
+    private readonly IDataAccessProvider _provider;
+    public OrderRepository(IDataAccessProvider provider)
+    {
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _db = provider?.CreateDbConnection() ?? throw new ArgumentNullException(nameof(provider));
+    }
+    
+    public async Task UpdateOrderStatus(Guid orderId, string status, CancellationToken token)
     {
         EnsureOpen(token);
         try

@@ -2,9 +2,18 @@
 using Ecommerce.Common.Models;
 using System.Data;
 using Dapper;
+using Ecommerce.Common.DataAccess;
 
-public class OrderRepository(IDbConnection _db) : IOrderRepository
+public class OrderRepository : IOrderRepository
 {
+     private readonly IDbConnection _db;
+     private readonly IDataAccessProvider _provider;
+
+    public OrderRepository(IDataAccessProvider provider)
+    {         _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _db = _provider.CreateDbConnection();
+    }
+
     public async Task<Guid> InsertFullOrderAsync(Order order, CancellationToken token)
     {
         var (street, city, state, zip) = SplitAddress(order?.User?.Address!);

@@ -1,17 +1,15 @@
 using Ecom_PaymentWorkerService;
 using Ecom_PaymentWorkerService.Repositories;
 using Ecom_PaymentWorkerService.Services;
+using Ecommerce.Common.DataAccess;
+using Ecommerce.Common.DataAccess.Order;
 using Ecommerce.Common.Settings.Extension;
-using Microsoft.Data.SqlClient;
-using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // IDbConnection 
-builder.Services.AddScoped<IDbConnection>(sp =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    return new SqlConnection(connectionString);
+builder.Services.AddScoped<IDataAccessProvider>(sp => {
+    return new OrderDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")!);
 });
 
 builder.Services.AddKafkaConsumerProducer(builder.Configuration);

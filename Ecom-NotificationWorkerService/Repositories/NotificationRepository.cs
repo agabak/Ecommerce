@@ -1,6 +1,6 @@
 ﻿using Dapper;
-using Ecom_NotificationWorkerService.DataAccess;
 using Ecom_NotificationWorkerService.Models;
+using Ecommerce.Common.DataAccess;
 using System.Data;
 
 namespace Ecom_NotificationWorkerService.Repositories
@@ -8,9 +8,9 @@ namespace Ecom_NotificationWorkerService.Repositories
     public class NotificationRepository : INotificationRepository
     {
         private readonly IDbConnection _db;
-        private readonly IOrderDataAccessProvider _provider;
+        private readonly IDataAccessProvider _provider;
 
-        public NotificationRepository(IOrderDataAccessProvider provider)
+        public NotificationRepository(IDataAccessProvider provider)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _db = provider.CreateDbConnection();
