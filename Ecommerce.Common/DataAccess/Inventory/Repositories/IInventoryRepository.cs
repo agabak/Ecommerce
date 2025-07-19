@@ -1,8 +1,9 @@
 ﻿using Ecommerce.Common.Models;
 
-namespace Ecom_OrderInventoryService.Repositories;
+namespace Ecommerce.Common.DataAccess.Inventory.Repositories;
 
 public interface IInventoryRepository
 {
     Task<Dictionary<Guid, Guid>> UpdateInventoryAfterOrderAsync(List<Item> items, CancellationToken token);
+    Task EnsureInventoryRecordAsync(Guid productId, CancellationToken token = default);
 }

@@ -3,8 +3,10 @@ using Ecom_ProductApi.Repositories;
 using Ecom_ProductApi.Services;
 using Ecommerce.Common.DataAccess;
 using Ecommerce.Common.DataAccess.Product;
+using Ecommerce.Common.Middleware;
 using Ecommerce.Common.Services.Files;
 using Ecommerce.Common.Settings.Extension;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +44,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<GlobalExceptionHandler>();
 
 app.UseHttpsRedirection();
 

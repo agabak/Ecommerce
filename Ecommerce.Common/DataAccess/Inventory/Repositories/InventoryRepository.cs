@@ -1,9 +1,8 @@
 ﻿using Dapper;
-using Ecommerce.Common.DataAccess;
 using Ecommerce.Common.Models;
 using System.Data;
 
-namespace Ecom_OrderInventoryService.Repositories;
+namespace Ecommerce.Common.DataAccess.Inventory.Repositories;
 
 public class InventoryRepository : IInventoryRepository
 {
@@ -13,13 +12,13 @@ public class InventoryRepository : IInventoryRepository
     public InventoryRepository(IDataAccessProvider provider)
     {
         _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-        _db = _provider.CreateDbConnection();
+        _db = provider.CreateDbConnection();
     }
 
     public async Task<Dictionary<Guid, Guid>> UpdateInventoryAfterOrderAsync(List<Item> items, CancellationToken token)
     {
         var result = new Dictionary<Guid, Guid>();
-        EnsureOpen(token);
+
         try
         {
             foreach (var item in items)
@@ -29,7 +28,7 @@ public class InventoryRepository : IInventoryRepository
                 var inventory = await _db.QueryFirstOrDefaultAsync<(int Quantity, Guid WarehouseId)>(
                     selectSql, new { item.Product.ProductId });
 
-                if (inventory.Equals(default((int, Guid))))
+                if (inventory.Equals(default))
                 {
                     // Could not find inventory for this product, skip or throw (your choice)
                     continue;
@@ -41,7 +40,7 @@ public class InventoryRepository : IInventoryRepository
 
                 if (inventory.Quantity < ordered)
                 {
-                    int toAdd = (ordered - inventory.Quantity) + buffer;
+                    int toAdd = ordered - inventory.Quantity + buffer;
                     int newQty = inventory.Quantity + toAdd;
                     finalQty = newQty - ordered;
                 }
@@ -74,11 +73,56 @@ public class InventoryRepository : IInventoryRepository
         }
     }
 
+    public async Task EnsureInventoryRecordAsync(Guid productId, CancellationToken token = default)
+    {
+        const string selectInventorySql = @"
+        SELECT InventoryId, Quantity
+        FROM dbo.Inventory
+        WHERE ProductId = @ProductId;";
+
+        EnsureOpen(token);
+        var inventory = await _db.QueryFirstOrDefaultAsync<(Guid InventoryId, int Quantity)>(
+            new CommandDefinition(selectInventorySql, new { ProductId = productId }, cancellationToken: token)
+        );
+
+        if (inventory != default)
+        {
+            // Inventory exists – update quantity
+            const string updateSql = @"
+            UPDATE dbo.Inventory
+            SET Quantity = Quantity + 1,
+                LastUpdated = SYSDATETIME()
+            WHERE ProductId = @ProductId;";
+
+            await _db.ExecuteAsync(
+                new CommandDefinition(updateSql, new { ProductId = productId }, cancellationToken: token)
+            );
+        }
+        else
+        {
+            // Inventory doesn't exist – pick a random warehouse and insert
+            const string selectWarehouseSql = @"
+            SELECT TOP 1 WarehouseId 
+            FROM dbo.Warehouses 
+            ORDER BY NEWID();";
+
+            var warehouseId = await _db.ExecuteScalarAsync<Guid>(
+                new CommandDefinition(selectWarehouseSql, cancellationToken: token)
+            );
+
+            const string insertSql = @"
+            INSERT INTO dbo.Inventory (ProductId, WarehouseId, Quantity, LastUpdated)
+            VALUES (@ProductId, @WarehouseId, 100, SYSDATETIME());";
+
+            await _db.ExecuteAsync(
+                new CommandDefinition(insertSql, new { ProductId = productId, WarehouseId = warehouseId }, cancellationToken: token)
+            );
+        }
+    }
+
     private void EnsureOpen(CancellationToken ct)
     {
         if (_db.State != ConnectionState.Open)
             _db.Open();
     }
 }
-
-

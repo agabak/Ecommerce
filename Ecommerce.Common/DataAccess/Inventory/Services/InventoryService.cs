@@ -1,7 +1,7 @@
-﻿using Ecom_OrderInventoryService.Repositories;
+﻿using Ecommerce.Common.DataAccess.Inventory.Repositories;
 using Ecommerce.Common.Models;
 
-namespace Ecom_OrderInventoryService.Services;
+namespace Ecommerce.Common.DataAccess.Inventory.Services;
 
 public class InventoryService(IInventoryRepository repository) : IInventoryService
 {
@@ -9,4 +9,10 @@ public class InventoryService(IInventoryRepository repository) : IInventoryServi
     {
         return await repository.UpdateInventoryAfterOrderAsync(items, token);
     }
+
+    public async Task EnsureInventoryRecordAsync(Guid productId, CancellationToken token = default)
+    {
+        await repository.EnsureInventoryRecordAsync(productId, token);
+    }
 }
+

@@ -1,4 +1,4 @@
-﻿using Ecom_InventoryWorkerService.Services;
+﻿using Ecommerce.Common.DataAccess.Inventory.Services;
 using Ecommerce.Common.Services.Kafka;
 
 namespace Ecom_InventoryWorkerService;

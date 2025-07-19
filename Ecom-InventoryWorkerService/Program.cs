@@ -1,11 +1,9 @@
 using Ecom_InventoryWorkerService;
-using Ecom_InventoryWorkerService.Repositories;
-using Ecom_InventoryWorkerService.Services;
 using Ecommerce.Common.DataAccess;
-using Ecommerce.Common.DataAccess.Inventory;
+using Ecommerce.Common.DataAccess.Inventory.Repositories;
+using Ecommerce.Common.DataAccess.Inventory.Services;
 using Ecommerce.Common.Settings.Extension;
-using Microsoft.Data.SqlClient;
-using System.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
