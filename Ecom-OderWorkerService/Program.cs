@@ -1,15 +1,9 @@
-using Confluent.Kafka;
+using ECom.Infrastructure.DataAccess;
+using ECom.Infrastructure.DataAccess.Order;
+using ECom.Infrastructure.DataAccess.Order.Repositories;
+using ECom.Infrastructure.DataAccess.Order.Services;
 using Ecom_OderWorkerService;
-using Ecom_OderWorkerService.Repositories;
-using Ecom_OderWorkerService.Services;
-using Ecommerce.Common.DataAccess;
-using Ecommerce.Common.DataAccess.Order;
-using Ecommerce.Common.Services.Kafka;
 using Ecommerce.Common.Settings.Extension;
-using Ecommerce.Common.Settings.Kafka;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Options;
-using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

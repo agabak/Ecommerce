@@ -1,4 +1,4 @@
-﻿using Ecom_PaymentWorkerService.Services;
+﻿using ECom.Infrastructure.DataAccess.Order.Services;
 using Ecommerce.Common.Services.Kafka;
 
 namespace Ecom_PaymentWorkerService;
@@ -41,7 +41,7 @@ public class PaymentBackgroundWorkerService : BackgroundService
     private async Task HandlePaymentCompletedMessageAsync(string message, CancellationToken stoppingToken)
     {
         using var scope = _provider.CreateScope();
-        var paymentService = scope.ServiceProvider.GetRequiredService<IPaymentService>();
+        var paymentService = scope.ServiceProvider.GetRequiredService<IOrderService>();
  
         try
         {

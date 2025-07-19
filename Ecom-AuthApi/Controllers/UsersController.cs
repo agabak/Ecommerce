@@ -1,5 +1,6 @@
-﻿using Ecom_AuthApi.Model.Dtos;
+﻿using ECom.Infrastructure.DataAccess.User.Services;
 using Ecom_AuthApi.Services;
+using Ecommerce.Common.Models.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

@@ -1,4 +1,6 @@
-﻿namespace Ecommerce.Common.Models.Products;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Ecommerce.Common.Models.Products;
 
 
 public class CategoryDto
@@ -37,4 +39,36 @@ public class ReviewDto
     public string Comment { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
 }
+
+public class ProductForImage
+{
+    public Guid CategoryId { get; set; }
+    public string ProductName { get; set; } = default!;
+    public string Description { get; set; } = default!;
+    public decimal Price { get; set; }
+    public string SKU { get; set; } = default!;
+    public bool IsActive { get; set; }
+    public List<IFormFile> Images { get; set; } = new();
+}
+
+public class ProductImage
+{
+    public string ImageUrl { get; set; } = default!;
+    public int SortOrder { get; set; }
+}
+
+public class ProductWithImage
+{
+    public Guid ProductId { get; set; }
+    public string ProductName { get; set; } = default!;
+    public decimal Price { get; set; } = default!;
+    public string Description { get; set; } = default!;
+    public string SKU { get; set; } = default!;
+
+    public string Category { get; set; } = default!;
+    public string CategoryDescription { get; set; } = default!;
+
+    public List<ProductImage> Images { get; set; } = new List<ProductImage>();
+}
+
 

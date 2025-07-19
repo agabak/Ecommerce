@@ -39,7 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{CCB51A2E-A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECom-Common.Test", "ECom-Common.Test\ECom-Common.Test.csproj", "{A5382761-51EF-4830-A9C1-8D99BED67BA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECom.nfrastructure", "ECom.nfrastructure\ECom.nfrastructure.csproj", "{2512D5B2-7172-491B-99DD-03FD3D7B17A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECom.Infrastructure", "ECom.nfrastructure\ECom.Infrastructure.csproj", "{2512D5B2-7172-491B-99DD-03FD3D7B17A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

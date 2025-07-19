@@ -1,5 +1,5 @@
 ﻿using Confluent.Kafka;
-using Ecom_OderWorkerService.Services;
+using ECom.Infrastructure.DataAccess.Order.Services;
 using Ecommerce.Common.Models;
 using Ecommerce.Common.Services.Kafka;
 using System.Text.Json;

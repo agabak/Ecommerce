@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ecom-AuthApi\Ecom-AuthApi.csproj" />
+    <ProjectReference Include="..\ECom.nfrastructure\ECom.Infrastructure.csproj" />
     <ProjectReference Include="..\Ecommerce.Common\Ecommerce.Common.csproj" />
   </ItemGroup>
 

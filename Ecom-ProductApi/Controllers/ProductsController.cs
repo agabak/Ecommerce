@@ -1,6 +1,5 @@
-﻿using Ecom_ProductApi.Models.DTos;
-using Ecom_ProductApi.Services;
-using Microsoft.AspNetCore.Http;
+﻿using ECom.Infrastructure.DataAccess.Product.Services;
+using Ecommerce.Common.Models.Products;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecom_ProductApi.Controllers
@@ -11,7 +10,7 @@ namespace Ecom_ProductApi.Controllers
     {
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] ProductDto product, CancellationToken token = default)
+        public async Task<IActionResult> Create([FromForm] ProductForImage product, CancellationToken token = default)
         {
             if(product == null)
             {

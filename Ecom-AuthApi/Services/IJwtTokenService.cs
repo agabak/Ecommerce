@@ -1,4 +1,4 @@
-﻿using Ecom_AuthApi.Model.Dtos;
+﻿using Ecommerce.Common.Models.Users;
 
 namespace Ecom_AuthApi.Services
 {

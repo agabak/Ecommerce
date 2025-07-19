@@ -1,7 +1,8 @@
+using ECom.Infrastructure.DataAccess;
+using ECom.Infrastructure.DataAccess.Inventory;
+using ECom.Infrastructure.DataAccess.Inventory.Repositories;
+using ECom.Infrastructure.DataAccess.Inventory.Services;
 using Ecom_OrderInventoryService;
-using Ecommerce.Common.DataAccess;
-using Ecommerce.Common.DataAccess.Inventory.Repositories;
-using Ecommerce.Common.DataAccess.Inventory.Services;
 using Ecommerce.Common.Settings.Extension;
 
 var builder = WebApplication.CreateBuilder(args);

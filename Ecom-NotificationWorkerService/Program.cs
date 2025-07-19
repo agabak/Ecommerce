@@ -1,8 +1,8 @@
+using ECom.Infrastructure.DataAccess;
+using ECom.Infrastructure.DataAccess.Order;
+using ECom.Infrastructure.DataAccess.Order.Repositories;
+using ECom.Infrastructure.DataAccess.Order.Services;
 using Ecom_NotificationWorkerService;
-using Ecom_NotificationWorkerService.Repositories;
-using Ecom_NotificationWorkerService.Services;
-using Ecommerce.Common.DataAccess;
-using Ecommerce.Common.DataAccess.Order;
 using Ecommerce.Common.Settings.Extension;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,8 +16,8 @@ builder.Services.AddScoped<IDataAccessProvider>(sp =>
 builder.Services.AddKafkaConsumerProducer(builder.Configuration);
 
 builder.Services.AddHostedService<ConfirmationBackgroundWorkerService>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<INotificationService, NotificationService>();    
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();    
 
 var app = builder.Build();
 

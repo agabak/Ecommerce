@@ -1,4 +1,4 @@
-﻿using Ecom_AuthApi.Model.Dtos;
+﻿using Ecommerce.Common.Models.Users;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

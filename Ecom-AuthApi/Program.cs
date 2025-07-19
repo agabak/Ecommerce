@@ -1,7 +1,8 @@
-using Ecom_AuthApi.Repositories;
+using ECom.Infrastructure.DataAccess;
+using ECom.Infrastructure.DataAccess.User;
+using ECom.Infrastructure.DataAccess.User.Repositories;
+using ECom.Infrastructure.DataAccess.User.Services;
 using Ecom_AuthApi.Services;
-using Ecommerce.Common.DataAccess;
-using Ecommerce.Common.DataAccess.User;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

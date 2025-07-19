@@ -1,4 +1,4 @@
-﻿using Ecom_NotificationWorkerService.Services;
+﻿using ECom.Infrastructure.DataAccess.Order.Services;
 using Ecommerce.Common.Services.Kafka;
 
 namespace Ecom_NotificationWorkerService;
@@ -29,7 +29,7 @@ public class ConfirmationBackgroundWorkerService(
     {
         logger.LogInformation("Received order notification message: {Message}", message);
         using var scope = provider.CreateScope();
-        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+        var notificationService = scope.ServiceProvider.GetRequiredService<IOrderService>();
 
         if (!Guid.TryParse(message?.Trim(), out var orderId)) return;
         
