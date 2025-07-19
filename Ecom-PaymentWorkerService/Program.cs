@@ -18,6 +18,8 @@ builder.Services.AddKafkaConsumerProducer(builder.Configuration);
 builder.Services.AddHostedService<PaymentBackgroundWorkerService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 var app = builder.Build();
 

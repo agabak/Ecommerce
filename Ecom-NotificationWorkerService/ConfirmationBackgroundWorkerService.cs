@@ -1,4 +1,5 @@
 ﻿using ECom.Infrastructure.DataAccess.Order.Services;
+using Ecommerce.Common.Notifications.Email;
 using Ecommerce.Common.Services.Kafka;
 
 namespace Ecom_NotificationWorkerService;
@@ -28,20 +29,26 @@ public class ConfirmationBackgroundWorkerService(
     private async Task HandleOrderNotificationMessageAsync(string message, CancellationToken stoppingToken)
     {
         logger.LogInformation("Received order notification message: {Message}", message);
+
+        if (!Guid.TryParse(message?.Trim(), out var orderId))
+        {
+            logger.LogWarning("Invalid order ID received: {Message}", message);
+            return;
+        }
+
         using var scope = provider.CreateScope();
-        var notificationService = scope.ServiceProvider.GetRequiredService<IOrderService>();
+        var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
+        var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
-        if (!Guid.TryParse(message?.Trim(), out var orderId)) return;
-        
-            var notification = await notificationService.GetOrderNotificationAsync(orderId, stoppingToken);
+        var order = await orderService.GetOrderAsync(orderId, stoppingToken);
 
-            if (notification == null)
-            {
-                logger.LogWarning("No notification found for OrderId: {OrderId}", orderId);
-                return;
-            }
+        if (order == null)
+        {
+            logger.LogWarning("No notification found for OrderId: {OrderId}", orderId);
+            return;
+        }
 
-            await notificationService.SendNotificationAsync(notification, stoppingToken);
-        
+        var messageEmail = OrderNotificationEmailBuilder.BuildOrderNotificationEmailBody(order);
+        await notificationService.AddNotificationAsync(order.UserId, orderId, "Order", "Order", messageEmail, stoppingToken);
     }
 }

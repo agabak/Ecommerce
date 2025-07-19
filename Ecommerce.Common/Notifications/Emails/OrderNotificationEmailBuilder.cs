@@ -4,7 +4,7 @@ namespace Ecommerce.Common.Notifications.Email;
 
 public static class OrderNotificationEmailBuilder
 {
-    public static string BuildOrderNotificationEmailBody(OrderNotification notification, string supportEmail = "support@yourcompany.com")
+    public static string BuildOrderNotificationEmailBody(OrderDto notification, string supportEmail = "support@yourcompany.com")
     {
         if (notification == null) throw new ArgumentNullException(nameof(notification));
 

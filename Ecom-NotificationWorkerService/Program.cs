@@ -17,7 +17,9 @@ builder.Services.AddKafkaConsumerProducer(builder.Configuration);
 
 builder.Services.AddHostedService<ConfirmationBackgroundWorkerService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IOrderService, OrderService>();    
+builder.Services.AddScoped<IOrderService, OrderService>(); 
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 

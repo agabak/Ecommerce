@@ -12,15 +12,13 @@ public class UserDto
 
 public class OrderDto
 {
-    public Guid OrderId { get; set; }
     public Guid UserId { get; set; }
-    public DateTime OrderDate { get; set; }
-    public string Status { get; set; } = string.Empty;
-    public decimal TotalAmount { get; set; } 
-    public string ShippingAddress { get; set; } = string.Empty;
-    public Guid? PaymentId { get; set; }
-    public string TrackingNumber { get; set; } = string.Empty;
-    public DateTime? UpdatedAt { get; set; }
+    public Guid OrderId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string PaymentStatus { get; set; } = string.Empty;
+    public string OrderStatus { get; set; } = string.Empty;
+    public string Address { get; set; } = string.Empty;
 }
 
 public class OrderItemDto
