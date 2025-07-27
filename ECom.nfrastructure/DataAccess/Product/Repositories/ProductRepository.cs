@@ -17,7 +17,7 @@ public class ProductRepository : IProductRepository
     public async Task<Guid> InsertProductWithImagesAsync(ProductForImage product,
         List<ProductImage> images, CancellationToken token = default)
     {
-        EnsureOpen(token);
+        _provider.EnsureConnection(_db);
         using var tran = _db.BeginTransaction();
         try
         {
@@ -88,7 +88,7 @@ public class ProductRepository : IProductRepository
 
         var productDict = new Dictionary<Guid, ProductWithImage>();
 
-        EnsureOpen(token);
+        _provider.EnsureConnection(_db);
 
         _ = await _db.QueryAsync<ProductWithImage, ProductImage, ProductWithImage>(
             new CommandDefinition(sql, cancellationToken: token),
@@ -133,7 +133,7 @@ public class ProductRepository : IProductRepository
                 WHERE
                     p.ProductId = @ProductId;";
 
-        EnsureOpen(token);
+        _provider.EnsureConnection(_db);
 
         var productDict = new Dictionary<Guid, ProductWithImage>();
         var result = await _db.QueryAsync<ProductWithImage, ProductImage, ProductWithImage>(
@@ -163,7 +163,8 @@ public class ProductRepository : IProductRepository
             UPDATE Products
             SET IsInventory = 1
             WHERE ProductId = @ProductId;";
-        EnsureOpen(token);
+    
+        _provider.EnsureConnection(_db);
         return _db.ExecuteAsync(new CommandDefinition(sql, new { ProductId = productId }, cancellationToken: token));
     }
 
@@ -175,15 +176,9 @@ public class ProductRepository : IProductRepository
             FROM Products
             WHERE IsInventory = 0;";
 
-        EnsureOpen(cancellation);
+        _provider.EnsureConnection(_db);
         return (await _db.QueryAsync<Guid>(
             new CommandDefinition(sql, cancellationToken: cancellation)
         )).ToList();
-    }
-
-    private void EnsureOpen(CancellationToken ct)
-    {
-        if (_db.State != ConnectionState.Open)
-            _db.Open();
     }
 }

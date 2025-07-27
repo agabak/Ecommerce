@@ -18,7 +18,7 @@ public class OrderRepository : IOrderRepository
 
     public async Task UpdateOrderStatus(Guid orderId, string status, CancellationToken token)
     {
-        EnsureOpen(token);
+        _provider.EnsureConnection(_db);
         try
         {
             var rowsAffected = await _db.ExecuteAsync(
@@ -52,14 +52,15 @@ public class OrderRepository : IOrderRepository
                 JOIN Users us ON us.UserId = od.UserId
                 WHERE py.Status = 'Processed'
                   AND od.Status = 'Paid'
-                  AND od.OrderId = @OrderId"; ;
-        EnsureOpen(token);
+                  AND od.OrderId = @OrderId"; 
+
+        _provider.EnsureConnection(_db);
         return await _db.QueryFirstOrDefaultAsync<OrderDto>(query, new { OrderId = orderId });
     }
 
     public async Task UpdatePaymentStatus(Guid orderId, string status, CancellationToken token)
     {
-        EnsureOpen(token);
+        _provider.EnsureConnection(_db);
         try
         {
             var rowsAffected = await _db.ExecuteAsync(
@@ -77,7 +78,7 @@ public class OrderRepository : IOrderRepository
     {
         var (street, city, state, zip) = SplitAddress(order?.User?.Address!);
 
-        EnsureOpen(token);
+        _provider.EnsureConnection(_db);
         using var tran = _db.BeginTransaction();
         try
         {
@@ -173,7 +174,7 @@ public class OrderRepository : IOrderRepository
     private async Task<Guid> GetOrUpdateUserAddressAsync(
         Guid userId, string street, string city, string state, string zip, IDbTransaction tran, CancellationToken token)
     {
-        EnsureOpen(token);
+        _provider.EnsureConnection(_db);
         // Try to find an existing current address for the user
         var address = await _db.QueryFirstOrDefaultAsync<dynamic>(@"
             SELECT TOP 1 AddressId, Street, City, State, ZipCode
@@ -249,7 +250,7 @@ public class OrderRepository : IOrderRepository
     private async Task<Guid> GetOrUpdatePaymentAsync(
         Guid orderId, string paymentMethod, decimal amount, string status, IDbTransaction tran, CancellationToken token)
     {
-        EnsureOpen(token);
+        _provider.EnsureConnection(_db);
         // Check for existing payment for this order with the same method and amount
         var payment = await _db.QueryFirstOrDefaultAsync<dynamic>(@"
             SELECT PaymentId, PaymentMethod, Amount, Status
@@ -305,13 +306,5 @@ public class OrderRepository : IOrderRepository
             parts.Length > 2 ? parts[2] : "",
             parts.Length > 3 ? parts[3] : ""
         );
-    }
-
-    private void EnsureOpen(CancellationToken token)
-    {
-        if (_db.State != ConnectionState.Open)
-        {
-            _db.Open();
-        }
     }
 }

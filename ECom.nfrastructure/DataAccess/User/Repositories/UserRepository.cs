@@ -16,7 +16,7 @@ public class UserRepository : IUserRepository
     }
     public async Task<UserDto> CreateUser(CreateUserDto dto, CancellationToken token = default)
     {
-        EnsureOpen(token);
+        _connection.EnsureConnection(db);
 
         using var tran = db.BeginTransaction();
         try
@@ -99,7 +99,7 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> DeleteUser(Guid userId, CancellationToken token = default)
     {
-        EnsureOpen(token);
+        _connection.EnsureConnection(db);
 
         using var tran = db.BeginTransaction();
         try
@@ -135,7 +135,7 @@ public class UserRepository : IUserRepository
                 WHERE u.UserName = @UserName;
                 ";
 
-        EnsureOpen(token);
+        _connection.EnsureConnection(db);
 
         var userDictionary = new Dictionary<Guid, UserWithAddressDto>();
 
@@ -176,7 +176,7 @@ public class UserRepository : IUserRepository
                 Phone = @Phone
             WHERE UserId = @UserId;";
 
-        EnsureOpen(token);
+        _connection.EnsureConnection(db);
 
         var affected = await db.ExecuteAsync(
             sql,
@@ -226,7 +226,7 @@ public class UserRepository : IUserRepository
                 FROM Users 
                 WHERE UserId = @UserId;";
 
-        EnsureOpen(token);
+        _connection.EnsureConnection(db);
 
         var user = await db.QuerySingleOrDefaultAsync<Ecommerce.Common.Models.Users.User>(
             sql,
@@ -238,11 +238,5 @@ public class UserRepository : IUserRepository
             throw new KeyNotFoundException($"User with ID '{userId}' does not exist.");
 
         return user;
-    }
-
-    private void EnsureOpen(CancellationToken ct)
-    {
-        if (db.State != ConnectionState.Open)
-            db.Open();
     }
 }

@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="ExternalServices\Kafka\" />
     <Folder Include="ExternalServices\Azure\" />
+    <Folder Include="ExternalServices\Kafka\settings\" />
   </ItemGroup>
 
   <ItemGroup>

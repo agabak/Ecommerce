@@ -14,7 +14,7 @@ public class PaymentRepository : IPaymentRepository
     }
     public async Task UpdatePaymentStatus(Guid orderId, string status, CancellationToken token)
     {
-        EnsureOpen(token);
+        _provider.EnsureConnection(_db);
         try
         {
             var rowsAffected = await _db.ExecuteAsync(
@@ -28,11 +28,4 @@ public class PaymentRepository : IPaymentRepository
         catch { throw; }
     }
 
-    private void EnsureOpen(CancellationToken token)
-    {
-        if (_db.State != ConnectionState.Open)
-        {
-            _db.Open();
-        }
-    }
 }

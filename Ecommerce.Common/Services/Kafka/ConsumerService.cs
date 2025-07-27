@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Ecommerce.Common.Services.Kafka;
 
 public class ConsumerService(
-    IKafkaConsumer  _consumer,
+    IConsumer<string,string>  _consumer,
     ILogger<IConsumerService> _logger,
     IConfiguration configuration,
     IKafkaAdminClient _adminClient

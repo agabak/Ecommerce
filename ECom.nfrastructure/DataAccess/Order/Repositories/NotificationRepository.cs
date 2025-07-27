@@ -21,7 +21,7 @@ public class NotificationRepository : INotificationRepository
                 VALUES
                     (@UserId, @Title, @Message, @Type, @Status, @SourceId, @SourceType)";
 
-        EnsureOpen(cancellationToken);
+        _provider.EnsureConnection(_db);
 
         var rowsAffected = await _db.ExecuteAsync(sql, new
         {
@@ -37,14 +37,6 @@ public class NotificationRepository : INotificationRepository
         if (rowsAffected == 0)
         {
             throw new Exception("Failed to insert notification.");
-        }
-    }
-
-    private void EnsureOpen(CancellationToken token)
-    {
-        if (_db.State != ConnectionState.Open)
-        {
-            _db.Open();
         }
     }
 }
