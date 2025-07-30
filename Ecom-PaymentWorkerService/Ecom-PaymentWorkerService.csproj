@@ -8,11 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ECom.nfrastructure\ECom.Infrastructure.csproj" />
-    <ProjectReference Include="..\Ecommerce.Common\Ecommerce.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="AgabaHermanKabungaPackage" Version="1.0.1" />
+	<PackageReference Include="Agaba.KabungaECom.Common.Pack" Version="1.0.1" />
     <PackageReference Include="Dapper" Version="2.1.66" />
   </ItemGroup>
 

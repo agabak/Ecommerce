@@ -1,9 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+     <PackageId>AgabaHermanKabungaPackage</PackageId>
+	 <Version>1.0.1</Version>
+	 <Authors>Agaba Kabunga</Authors>
+	 <Description>Data access for my project</Description>
+	 <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	 <RepositoryUrl>https://github.com/agabak/Ecommerce.git</RepositoryUrl>
+	 <TargetFramework>net8.0</TargetFramework>
+	 <ImplicitUsings>enable</ImplicitUsings>
+     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,13 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Agaba.KabungaECom.Common.Pack" Version="1.0.1" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Ecommerce.Common\Ecommerce.Common.csproj" />
   </ItemGroup>
 
 </Project>

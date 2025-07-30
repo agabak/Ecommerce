@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AgabaHermanKabungaPackage" Version="1.0.1" />
+	<PackageReference Include="Agaba.KabungaECom.Common.Pack" Version="1.0.1" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.17" />
@@ -16,10 +18,4 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ECom.nfrastructure\ECom.Infrastructure.csproj" />
-    <ProjectReference Include="..\Ecommerce.Common\Ecommerce.Common.csproj" />
-  </ItemGroup>
-
 </Project>

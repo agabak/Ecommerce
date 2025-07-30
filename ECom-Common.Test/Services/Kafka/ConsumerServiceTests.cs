@@ -30,7 +30,7 @@ namespace Ecommerce.Common.Tests.Services.Kafka
             _mockLogger = Substitute.For<ILogger<IConsumerService>>();
             _mockConfig = Substitute.For<IConfiguration>();
             _mockAdminClient = Substitute.For<IKafkaAdminClient>();
-            _service = new ConsumerService(_mockConsumer, _mockLogger, _mockConfig, _mockAdminClient);
+            //_service = new ConsumerService(_mockConsumer, _mockLogger, _mockConfig, _mockAdminClient);
         }
 
         [TearDown]

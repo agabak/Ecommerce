@@ -1,6 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+	  <PackageId>Agaba.KabungaECom.Common.Pack</PackageId>
+	  <Version>1.0.1</Version>
+	  <Authors>Agaba Kabunga</Authors>
+	  <Description>All common model domain</Description>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <RepositoryUrl>https://github.com/agabak/Ecommerce.git</RepositoryUrl>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
