@@ -16,6 +16,7 @@ namespace Ecommerce.Common.Middleware
             }
             catch (Exception ex)
             {
+                // small change on the NuGet package version to avoid the error
                 logger.LogError(ex, "An unhandled exception occurred while processing the request.");
                 
                 context.Response.StatusCode = ex switch

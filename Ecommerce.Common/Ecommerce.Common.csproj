@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <PackageId>Agaba.KabungaECom.Common.Pack</PackageId>
-	  <Version>1.0.1</Version>
+	  <Version>1.0.2</Version>
 	  <Authors>Agaba Kabunga</Authors>
 	  <Description>All common model domain</Description>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
