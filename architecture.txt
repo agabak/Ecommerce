@@ -111,3 +111,15 @@ Kafka provides reliable, decoupled, scalable event-driven communication.
 
 Each service is responsible for its own data and publishes/subscribes to relevant events.
 
+
+
+
+the good think about the NuGet package, wont break the changes until you take latest version of the package
+dotnet pack -c Release
+dotnet nuget push bin/Release/Agaba.KabungaECom.Common.Pack.1.0.2.nupkg --api-key <key_value> --source https://api.nuget.org/v3/index.json
+
+
+We need mto create Nuget package and use that instead of project reference..
+dotnet nuget push bin/Release/AgabaHermanKabungaPackage.1.0.1.nupkg --api-key <key_value> --source https://api.nuget.org/v3/index.json
+
+
