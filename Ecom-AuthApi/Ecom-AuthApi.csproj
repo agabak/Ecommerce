@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgabaHermanKabungaPackage" Version="1.0.3" />
+    <PackageReference Include="AgabaHermanKabungaPackage" Version="1.0.4.2" />
 	<PackageReference Include="Agaba.KabungaECom.Common.Pack" Version="1.0.2" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Dapper" Version="2.1.66" />

@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECom-Common.Test", "ECom-Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECom.Infrastructure", "ECom.nfrastructure\ECom.Infrastructure.csproj", "{2512D5B2-7172-491B-99DD-03FD3D7B17A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingNuget", "TestingNuget\TestingNuget.csproj", "{9EFC4F3A-A522-4637-91E3-CBB3A46D89D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +105,10 @@ Global
 		{2512D5B2-7172-491B-99DD-03FD3D7B17A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2512D5B2-7172-491B-99DD-03FD3D7B17A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2512D5B2-7172-491B-99DD-03FD3D7B17A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EFC4F3A-A522-4637-91E3-CBB3A46D89D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EFC4F3A-A522-4637-91E3-CBB3A46D89D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EFC4F3A-A522-4637-91E3-CBB3A46D89D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EFC4F3A-A522-4637-91E3-CBB3A46D89D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,6 +128,7 @@ Global
 		{A4499555-522F-4450-8469-6DAF0D4BFC5B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{A5382761-51EF-4830-A9C1-8D99BED67BA0} = {CCB51A2E-ABF9-45EC-B16D-B5AE8CA0F106}
 		{2512D5B2-7172-491B-99DD-03FD3D7B17A0} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{9EFC4F3A-A522-4637-91E3-CBB3A46D89D9} = {CCB51A2E-ABF9-45EC-B16D-B5AE8CA0F106}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {69F4197A-C189-499E-A510-5153CF19C875}

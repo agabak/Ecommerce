@@ -2,7 +2,7 @@
 
   <PropertyGroup>
      <PackageId>AgabaHermanKabungaPackage</PackageId>
-	 <Version>1.0.3</Version>
+	 <Version>1.0.4.2</Version>
 	 <Authors>Agaba Kabunga</Authors>
 	 <Description>Data access for my project</Description>
 	 <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -22,6 +22,7 @@
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="MySql.Data" Version="9.4.0" />
   </ItemGroup>
 
 </Project>

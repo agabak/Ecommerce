@@ -1,5 +1,3 @@
-using ECom.Infrastructure.DataAccess;
-using ECom.Infrastructure.DataAccess.User;
 using ECom.Infrastructure.DataAccess.User.Repositories;
 using ECom.Infrastructure.DataAccess.User.Services;
 using Ecom_AuthApi.Services;
@@ -13,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddScoped<IUserRepository>
-    (_ => new UserRepository(builder.Configuration.GetConnectionString("DefaultConnection")!));
+    (_ => new UserMySqlRepository(builder.Configuration.GetConnectionString("mysqlConnection")!));
 
 
 
