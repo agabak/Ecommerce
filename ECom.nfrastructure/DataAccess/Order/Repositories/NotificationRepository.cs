@@ -1,16 +1,10 @@
 ﻿using Dapper;
-using System.Data;
 
 namespace ECom.Infrastructure.DataAccess.Order.Repositories;
-public class NotificationRepository : INotificationRepository
+public class NotificationRepository :DataAccessProvider, INotificationRepository
 {
-    private readonly IDbConnection _db;
-    private readonly IDataAccessProvider _provider;
-
-    public NotificationRepository(IDataAccessProvider provider)
+    public NotificationRepository(string connectionString):base(connectionString)
     {
-        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-        _db = _provider.CreateDbConnection() ?? throw new ArgumentNullException(nameof(_provider));
     }
 
     public async Task AddNotificationAsync(Guid userId, Guid sourceId, string type, string source, string message, CancellationToken cancellationToken = default)
@@ -21,8 +15,8 @@ public class NotificationRepository : INotificationRepository
                 VALUES
                     (@UserId, @Title, @Message, @Type, @Status, @SourceId, @SourceType)";
 
-        _provider.EnsureConnection(_db);
 
+        using var _db = GetOpenConnection();
         var rowsAffected = await _db.ExecuteAsync(sql, new
         {
             UserId = userId,

@@ -1,6 +1,4 @@
-﻿using Ecommerce.Common.Models.Orders;
-
-namespace ECom.Infrastructure.DataAccess.Order.Repositories;
+﻿namespace ECom.Infrastructure.DataAccess.Order.Repositories;
 
 public interface INotificationRepository
 {

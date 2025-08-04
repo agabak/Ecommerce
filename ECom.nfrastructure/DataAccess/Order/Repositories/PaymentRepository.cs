@@ -3,18 +3,15 @@ using System.Data;
 
 namespace ECom.Infrastructure.DataAccess.Order.Repositories;
 
-public class PaymentRepository : IPaymentRepository
+public class PaymentRepository:DataAccessProvider, IPaymentRepository
 {
-    private readonly IDataAccessProvider _provider;
-    private readonly IDbConnection _db;
-    public PaymentRepository(IDataAccessProvider provider)
+    public PaymentRepository(string connectionString):base(connectionString)
     {
-        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-        _db = _provider.CreateDbConnection() ?? throw new ArgumentNullException(nameof(_provider));
     }
+
     public async Task UpdatePaymentStatus(Guid orderId, string status, CancellationToken token)
     {
-        _provider.EnsureConnection(_db);
+        using var _db = GetOpenConnection();
         try
         {
             var rowsAffected = await _db.ExecuteAsync(

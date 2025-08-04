@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace ECom.Infrastructure.DataAccess.Product;
 
-public class ProductDataAccessProvider(string connectionString) : IDataAccessProvider
-{
-    public IDbConnection CreateDbConnection()
-    {
-        return new SqlConnection(connectionString);
-    }
-}
+//public class ProductDataAccessProvider(string connectionString) : IDataAccessProvider
+//{
+//    public IDbConnection GetOpenConnection()()
+//    {
+//        return new SqlConnection(connectionString);
+//    }
+//}

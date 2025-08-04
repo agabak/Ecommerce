@@ -1,12 +1,12 @@
-﻿using Microsoft.Data.SqlClient;
-using System.Data;
+﻿//using Microsoft.Data.SqlClient;
+//using System.Data;
 
-namespace ECom.Infrastructure.DataAccess.Order;
+//namespace ECom.Infrastructure.DataAccess.Order;
 
-public class OrderDataAccessProvider(string connectionString) : IDataAccessProvider
-{
-    public IDbConnection CreateDbConnection()
-    {
-        return new SqlConnection(connectionString);
-    }
-}
+//public class OrderDataAccessProvider(string connectionString) : IDataAccessProvider
+//{
+//    public IDbConnection GetOpenConnection()()
+//    {
+//        return new SqlConnection(connectionString);
+//    }
+//}

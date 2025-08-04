@@ -1,12 +1,8 @@
 using Blazored.LocalStorage;
-using Confluent.Kafka;
 using Ecom_Client.Components;
 using Ecom_Client.Services;
 using Ecom_Client.Services.https;
-using Ecommerce.Common.Services.Kafka;
 using Ecommerce.Common.Settings.Extension;
-using Ecommerce.Common.Settings.Kafka;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -8,14 +8,14 @@ using Ecommerce.Common.Settings.Extension;
 var builder = WebApplication.CreateBuilder(args);
 
 // inject IDbConnection for SQL Server
-builder.Services.AddScoped<IDataAccessProvider>
-    (_ => new OrderDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")!)); // Updated to use Microsoft.Data.SqlClient.SqlConnection
+builder.Services.AddScoped<IOrderRepository>
+    (_ => new OrderRepository(builder.Configuration.GetConnectionString("DefaultConnection")!)); // Updated to use Microsoft.Data.SqlClient.SqlConnection
 
 builder.Services.AddKafkaConsumerProducer(builder.Configuration);
 
 // Add other services as needed
 builder.Services.AddHostedService<CreateOrderBackgroundService>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+//builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();

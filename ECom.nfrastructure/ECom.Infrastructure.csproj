@@ -2,7 +2,7 @@
 
   <PropertyGroup>
      <PackageId>AgabaHermanKabungaPackage</PackageId>
-	 <Version>1.0.1</Version>
+	 <Version>1.0.3</Version>
 	 <Authors>Agaba Kabunga</Authors>
 	 <Description>Data access for my project</Description>
 	 <PackageLicenseExpression>MIT</PackageLicenseExpression>

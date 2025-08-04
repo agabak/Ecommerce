@@ -1,18 +1,13 @@
 ﻿using Dapper;
 using Ecommerce.Common.Models;
-using System.Data;
 
 namespace ECom.Infrastructure.DataAccess.Inventory.Repositories;
 
-public class InventoryRepository : IInventoryRepository
+public class InventoryRepository : DataAccessProvider, IInventoryRepository
 {
-    private readonly IDbConnection _db;
-    private readonly IDataAccessProvider _provider;
-
-    public InventoryRepository(IDataAccessProvider provider)
+    public InventoryRepository(string connectionString)
+        :base(connectionString)
     {
-        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-        _db = provider.CreateDbConnection();
     }
 
     public async Task<Dictionary<Guid, Guid>> UpdateInventoryAfterOrderAsync(List<Item> items, CancellationToken token)
@@ -21,6 +16,7 @@ public class InventoryRepository : IInventoryRepository
 
         try
         {
+            using var _db = GetOpenConnection();
             foreach (var item in items)
             {
                 // 1. Get current inventory for the product, including WarehouseId
@@ -80,7 +76,7 @@ public class InventoryRepository : IInventoryRepository
         FROM dbo.Inventory
         WHERE ProductId = @ProductId;";
 
-        _provider.EnsureConnection(_db);
+        using var _db = GetOpenConnection();
         var inventory = await _db.QueryFirstOrDefaultAsync<(Guid InventoryId, int Quantity)>(
             new CommandDefinition(selectInventorySql, new { ProductId = productId }, cancellationToken: token)
         );

@@ -1,10 +1,5 @@
 ﻿using ECom.Infrastructure.DataAccess.User.Repositories;
 using Ecommerce.Common.Models.Users;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ECom.Infrastructure.DataAccess.User.Services;
 

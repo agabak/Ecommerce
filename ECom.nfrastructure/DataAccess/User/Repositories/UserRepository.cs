@@ -4,20 +4,16 @@ using System.Data;
 
 namespace ECom.Infrastructure.DataAccess.User.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository :DataAccessProvider, IUserRepository
 {
-    private readonly IDataAccessProvider _connection;
-    private readonly IDbConnection db;
-
-    public UserRepository(IDataAccessProvider connection)
+   
+    public UserRepository(string connection):base(connection)
     {
-        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-        db = _connection.CreateDbConnection();
     }
+    
     public async Task<UserDto> CreateUser(CreateUserDto dto, CancellationToken token = default)
     {
-        _connection.EnsureConnection(db);
-
+        using var db = GetOpenConnection();
         using var tran = db.BeginTransaction();
         try
         {
@@ -99,8 +95,7 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> DeleteUser(Guid userId, CancellationToken token = default)
     {
-        _connection.EnsureConnection(db);
-
+        using var db = GetOpenConnection(); 
         using var tran = db.BeginTransaction();
         try
         {
@@ -134,9 +129,7 @@ public class UserRepository : IUserRepository
                 LEFT JOIN Roles r ON ur.RoleId = r.RoleId
                 WHERE u.UserName = @UserName;
                 ";
-
-        _connection.EnsureConnection(db);
-
+        using var db = GetOpenConnection();
         var userDictionary = new Dictionary<Guid, UserWithAddressDto>();
 
         var result = await db.QueryAsync<UserWithAddressDto, string?, UserWithAddressDto>(
@@ -176,8 +169,7 @@ public class UserRepository : IUserRepository
                 Phone = @Phone
             WHERE UserId = @UserId;";
 
-        _connection.EnsureConnection(db);
-
+        using var db = GetOpenConnection();
         var affected = await db.ExecuteAsync(
             sql,
             new
@@ -211,7 +203,7 @@ public class UserRepository : IUserRepository
                     THEN CAST(0 AS BIT)
                     ELSE CAST(1 AS BIT)
                 END AS IsUnique;";
-
+        using var db = GetOpenConnection();
         return await db.QuerySingleAsync<bool>(
             sql,
             new { Username = username, Email = email },
@@ -226,8 +218,7 @@ public class UserRepository : IUserRepository
                 FROM Users 
                 WHERE UserId = @UserId;";
 
-        _connection.EnsureConnection(db);
-
+        using var db = GetOpenConnection(); 
         var user = await db.QuerySingleOrDefaultAsync<Ecommerce.Common.Models.Users.User>(
             sql,
             new { UserId = userId },

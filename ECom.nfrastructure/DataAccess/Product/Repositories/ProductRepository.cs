@@ -1,24 +1,20 @@
 ﻿using Dapper;
 using Ecommerce.Common.Models.Products;
-using System.Data;
 
 namespace ECom.Infrastructure.DataAccess.Product.Repositories;
 
-public class ProductRepository : IProductRepository
+public class ProductRepository :DataAccessProvider, IProductRepository
 {
-    private readonly IDbConnection _db;
-    private readonly IDataAccessProvider _provider;
-    public ProductRepository(IDataAccessProvider provider)
+    public ProductRepository(string connection):base(connection)
     {
-        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-        _db = _provider.CreateDbConnection();
     }
 
     public async Task<Guid> InsertProductWithImagesAsync(ProductForImage product,
         List<ProductImage> images, CancellationToken token = default)
     {
-        _provider.EnsureConnection(_db);
-        using var tran = _db.BeginTransaction();
+
+        using var dbConnection = GetOpenConnection();
+        using var tran = dbConnection.BeginTransaction();
         try
         {
             // 1. Insert product and get ProductId
@@ -29,7 +25,7 @@ public class ProductRepository : IProductRepository
             VALUES
                 (@ProductName, @Description, @Price, @CategoryId, @SKU, SYSDATETIME(), @IsActive);";
 
-            var productId = await _db.ExecuteScalarAsync<Guid>(
+            var productId = await dbConnection.ExecuteScalarAsync<Guid>(
                 new CommandDefinition(
                     productSql,
                     product,
@@ -45,7 +41,7 @@ public class ProductRepository : IProductRepository
 
             foreach (var img in images)
             {
-                await _db.ExecuteAsync(
+                await dbConnection.ExecuteAsync(
                     new CommandDefinition(
                         imageSql,
                         new { ProductId = productId, img.ImageUrl, img.SortOrder },
@@ -88,9 +84,9 @@ public class ProductRepository : IProductRepository
 
         var productDict = new Dictionary<Guid, ProductWithImage>();
 
-        _provider.EnsureConnection(_db);
+        using var dbConnection = GetOpenConnection();   
 
-        _ = await _db.QueryAsync<ProductWithImage, ProductImage, ProductWithImage>(
+        _ = await dbConnection.QueryAsync<ProductWithImage, ProductImage, ProductWithImage>(
             new CommandDefinition(sql, cancellationToken: token),
             map: (product, image) =>
             {
@@ -133,10 +129,9 @@ public class ProductRepository : IProductRepository
                 WHERE
                     p.ProductId = @ProductId;";
 
-        _provider.EnsureConnection(_db);
-
         var productDict = new Dictionary<Guid, ProductWithImage>();
-        var result = await _db.QueryAsync<ProductWithImage, ProductImage, ProductWithImage>(
+        using var dbConnection = GetOpenConnection();
+        var result = await dbConnection.QueryAsync<ProductWithImage, ProductImage, ProductWithImage>(
             new CommandDefinition(sql, new { ProductId = productId }, cancellationToken: token),
             map: (product, image) =>
             {
@@ -163,9 +158,8 @@ public class ProductRepository : IProductRepository
             UPDATE Products
             SET IsInventory = 1
             WHERE ProductId = @ProductId;";
-    
-        _provider.EnsureConnection(_db);
-        return _db.ExecuteAsync(new CommandDefinition(sql, new { ProductId = productId }, cancellationToken: token));
+        using var dbConnection = GetOpenConnection();
+        return dbConnection.ExecuteAsync(new CommandDefinition(sql, new { ProductId = productId }, cancellationToken: token));
     }
 
     public async Task<List<Guid>> GetProductsNotInInventoryAsync(CancellationToken cancellation)
@@ -175,9 +169,8 @@ public class ProductRepository : IProductRepository
             SELECT ProductId
             FROM Products
             WHERE IsInventory = 0;";
-
-        _provider.EnsureConnection(_db);
-        return (await _db.QueryAsync<Guid>(
+        using var dbConnection = GetOpenConnection();
+        return (await dbConnection.QueryAsync<Guid>(
             new CommandDefinition(sql, cancellationToken: cancellation)
         )).ToList();
     }

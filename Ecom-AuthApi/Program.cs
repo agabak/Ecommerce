@@ -12,8 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddScoped<IDataAccessProvider>
-    (_ => new UserDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")!));
+builder.Services.AddScoped<IUserRepository>
+    (_ => new UserRepository(builder.Configuration.GetConnectionString("DefaultConnection")!));
 
 
 
@@ -89,7 +89,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+//builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 

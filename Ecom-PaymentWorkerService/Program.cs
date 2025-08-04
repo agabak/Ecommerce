@@ -8,8 +8,12 @@ using Ecommerce.Common.Settings.Extension;
 var builder = WebApplication.CreateBuilder(args);
 
 // IDbConnection 
-builder.Services.AddScoped<IDataAccessProvider>(sp => {
-    return new OrderDataAccessProvider(builder.Configuration.GetConnectionString("DefaultConnection")!);
+builder.Services.AddScoped<IOrderRepository>(sp => {
+    return new OrderRepository(builder.Configuration.GetConnectionString("DefaultConnection")!);
+});
+
+builder.Services.AddScoped<IPaymentRepository>(sp => {
+    return new PaymentRepository(builder.Configuration.GetConnectionString("DefaultConnection")!);
 });
 
 builder.Services.AddKafkaConsumerProducer(builder.Configuration);
@@ -17,8 +21,8 @@ builder.Services.AddKafkaConsumerProducer(builder.Configuration);
 // Add other services as needed
 builder.Services.AddHostedService<PaymentBackgroundWorkerService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+//builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+//builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 var app = builder.Build();
